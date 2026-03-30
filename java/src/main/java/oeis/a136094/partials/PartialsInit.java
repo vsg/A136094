@@ -223,7 +223,6 @@ public class PartialsInit {
         if (problemsFile.exists()) {
             loadProblemsOfShape(problemsFile, problems);
         } else {
-            //System.out.println("Generating problems " + shape);
             iterateUniqueBundlesOfShape(shape, (bundles) -> {
                 problems.add(bundles);
             });
@@ -375,15 +374,35 @@ public class PartialsInit {
         }
     }
 
-    // is bundle2 a duplicate of bundle1, either whole or partially
+    // Does bundle2 duplicate any sequences from bundle1?
     private static boolean isDup(Bundle bundle1, Bundle bundle2) {
         int heads1 = bundle1.heads();
         int heads2 = bundle2.heads(); 
         int digits1 = bundle1.digits();
         int digits2 = bundle2.digits();
-        if ((digits2 & ~digits1) == 0) {
-            if ((heads1 & ~digits2) != 0) return true;
-            if ((heads1 & heads2) != 0) return true;
+        if ((digits2 & ~digits1) == 0) { // no unique digits in bundle2
+            if ((heads1 & ~digits2) != 0) { // unique digits in bundle1's heads
+                // All bundle2 sequences are already present in a bundle1's tail.  
+                // Example: 
+                //   bundle1 = 14/1234 = 1(234) 4(123)
+                //   bundle2 = 12/123 = 1(23) 2(13)
+                //
+                //   Bundle1 contains all digits of bundle2: 1, 2, and 3.
+                //   Bundle1 has digit 4 which is not present in bundle2.
+                //   This means that bundle1 has a tail which contains all permutations of bundle2's digits: (123).
+                //   Both 1(23) and 2(13) are already present in (123).
+                return true; 
+            }
+            if ((heads1 & heads2) != 0) { // common digits in heads
+                // Example:
+                //   bundle1 = 14/1234 = 1(234) 4(123)
+                //   bundle2 = 1/123 = 1(23)
+                //
+                //   Bundle1 contains all digits of bundle2: 1, 2, and 3.
+                //   Both bundles have a common head digit: 1.
+                //   The sequences 1(23) are all present in 1(234).
+                return true;
+            }
         }
         return false;
     }
