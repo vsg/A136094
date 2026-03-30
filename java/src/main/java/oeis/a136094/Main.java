@@ -263,7 +263,7 @@ public class Main {
         Problem[] problems = new Problem[10];
         for (int i = 1; i <= 9; i++) {
             int digits = (1 << i) - 1;
-            Bundle bundle = Bundle.unpack((digits << 9) | digits); // all permutations of N digits
+            Bundle bundle = Bundle.of(digits, digits); // all permutations of N digits
             problems[i] = new Problem(new Bundle[] {bundle});
         }
         

@@ -287,7 +287,7 @@ public class PartialsInit {
             int numHeads1 = shape1 & MASK_4;
             int heads1 = (1<<numHeads1)-1;
             int digits1 = (1<<numDigits1)-1;
-            Bundle bundle1 = Bundle.unpack((heads1 << 9) | digits1);
+            Bundle bundle1 = Bundle.of(heads1, digits1);
             
             bundlesOfShape1 = new Bundle[] {bundle1};
         }
@@ -531,8 +531,6 @@ public class PartialsInit {
     }
 
     private static void applyShapeSolutions123(String shape, Checkpoint checkpoint, Partials partials) {
-        int[] swap1 = new int[9];
-        
         KeyBuilder.generateKeysInParallel((consumer) -> {
             iterateBundlesOfShape(shape, true, false, consumer);
         }, (bundles, key) -> {
@@ -544,8 +542,8 @@ public class PartialsInit {
             Bundle bundle3 = (bundles.length >= 3) ? bundles[2] : null;
 
             int shape1 = bundle1.shape();
-
-            bundle1.makeBundleSwap1234(swap1);
+            
+            int[] swap1 = bundle1.makeBundleSwap1234();
             
             Bundle bundle22 = (bundle2 != null) ? bundle2.swapBundleDigits(swap1) : null;
             Bundle bundle33 = (bundle3 != null) ? bundle3.swapBundleDigits(swap1) : null;

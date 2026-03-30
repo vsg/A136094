@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Bundle {
     
@@ -24,6 +25,7 @@ public class Bundle {
     public static final List<Bundle> ALL_BUNDLES = new ArrayList<>();
 
     private static final Bundle[] packedToBundle = new Bundle[1<<18];
+    private static final Bundle[][] indexToPieces = new Bundle[20000][];
     private static final String[] indexToString = new String[20000];
     private static final Map<String, Bundle> stringToBundle = new HashMap<>();
 
@@ -73,6 +75,17 @@ public class Bundle {
         for (int shape = 0; shape < 256; shape++) {
             BUNDLES_OF_SHAPE[shape] = Arrays.copyOf(bundlesByShape[shape], numBundlesByShape[shape]);
         }
+        
+        for (Bundle bundle : ALL_BUNDLES) {
+            int heads = bundle.heads();
+            int digits = bundle.digits();
+            int index = bundle.index();
+            
+            indexToPieces[index] = IntStream.range(0, 9)
+                    .filter(d -> ((heads >> d) & 1) != 0)
+                    .mapToObj(d -> packedToBundle[pack(1 << d, digits)])
+                    .toArray(Bundle[]::new);
+        }
     }
 
     private final int heads;
@@ -90,7 +103,7 @@ public class Bundle {
         this.numDigits = bitCount(digits);
         this.index = index;
         this.shape = shape(numHeads, numDigits);
-        this.packed = (heads << 9) | digits;
+        this.packed = pack(heads, digits);
     }
     
     public int heads() {
@@ -121,8 +134,16 @@ public class Bundle {
         return packed;
     }
     
+    public static Bundle of(int heads, int digits) {
+        return packedToBundle[pack(heads, digits)];
+    }
+    
     public static Bundle unpack(int packed) {
         return packedToBundle[packed];
+    }
+    
+    public Bundle[] pieces() {
+        return indexToPieces[index];
     }
     
     public int toSortKey() {
@@ -136,13 +157,14 @@ public class Bundle {
             hh |= ((heads >> src) & 1) << dest;
             dd |= ((digits >> src) & 1) << dest;
         }
-        return unpack((hh << 9) | dd);
+        return packedToBundle[pack(hh, dd)];
     }
 
-    public void makeBundleSwap1234(int[] swap) {
+    public int[] makeBundleSwap1234() {
         int nextHeadDigit = 0;
         int nextTailDigit = numHeads;
         int nextMissingDigit = numDigits;
+        int[] swap = new int[9];
         for (int d = 0; d < 9; d++) {
             int mask = 1 << d;
             if ((heads & mask) != 0) {
@@ -153,6 +175,7 @@ public class Bundle {
                 swap[d] = nextMissingDigit++;
             }
         }
+        return swap;
     }
     
     @Override
@@ -206,6 +229,10 @@ public class Bundle {
         return (numDigits << 4) | numHeads;
     }
 
+    public static int pack(int heads, int digits) {
+        return (heads << 9) | digits;
+    }
+    
     public static Bundle[] sortBundles(Bundle[] bundles) {
         return Arrays.stream(bundles)
                 .mapToInt(b -> -b.toSortKey())  // sort in descending order, bigger bundles go first

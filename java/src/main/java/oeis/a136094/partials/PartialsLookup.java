@@ -5,9 +5,7 @@
 package oeis.a136094.partials;
 
 import static oeis.a136094.Bundle.heads;
-import static oeis.a136094.Bundle.shape;
 import static oeis.a136094.key.KeyUtils.K2;
-import static oeis.a136094.util.BitUtils.MASK_18;
 import static oeis.a136094.util.BitUtils.digitsMaskToString;
 
 import java.util.Arrays;
@@ -18,14 +16,8 @@ import oeis.a136094.Main;
 public class PartialsLookup {
     
     private final Partials partials;
-    private final Bundle[] sortedPieces = new Bundle[9*256];
-    private final int[] sortBuffer = new int[9*256];
     private final Bundle[] swappedBundles = new Bundle[1024];
     private final Bundle[] originalBundles = new Bundle[1024];
-    private final int[] swap1 = new int[9];
-    private final int[] k2swap = new int[9];
-    private final int[] groupSize = new int[9];
-    private final int[] groupStartIndex = new int[9];
 
     public PartialsLookup(Partials partials) {
         this.partials = partials;
@@ -36,7 +28,7 @@ public class PartialsLookup {
         
         int moves = heads(sortedBundles);
         
-        moves = canHaveAnswer(sortedBundles, sortedBundles.length, moves, bestAnsLen - path.length());
+        moves = canHaveAnswer(sortedBundles, moves, bestAnsLen - path.length());
         if (moves == 0) {
             if (Main.DEBUG) System.out.println("Reject: " + path);
             return 0;
@@ -46,27 +38,29 @@ public class PartialsLookup {
         return moves;
     }
     
-    private int canHaveAnswer(Bundle[] sortedBundles, int len, int nextMoves, int bestAnsLen) {
-        if (len == 0 || bestAnsLen == 0) return 0;
+    private int canHaveAnswer(Bundle[] sortedBundles, int nextMoves, int bestAnsLen) {
+        if (sortedBundles.length == 0 || bestAnsLen == 0) return 0;
         
-        nextMoves = canHaveAnswerLookup123(sortedBundles, len, bestAnsLen, nextMoves);
+        nextMoves = canHaveAnswerLookup123(sortedBundles, bestAnsLen, nextMoves);
         if (nextMoves == 0) return 0;
         
-        nextMoves = canHaveAnswerLookup45(sortedBundles, len, bestAnsLen, nextMoves);
+        nextMoves = canHaveAnswerLookup45(sortedBundles, bestAnsLen, nextMoves);
         if (nextMoves == 0) return 0;
         
-        int numPieces = preparePieces(sortedBundles, len, sortedPieces, sortBuffer);
+        Bundle[] sortedPieces = splitIntoPieces(sortedBundles);
+        if (sortedPieces == null) return nextMoves;
 
-        nextMoves = canHaveAnswerLookup123(sortedPieces, numPieces, bestAnsLen, nextMoves);
+        nextMoves = canHaveAnswerLookup123(sortedPieces, bestAnsLen, nextMoves);
         if (nextMoves == 0) return 0;
         
-        nextMoves = canHaveAnswerLookup45(sortedPieces, numPieces, bestAnsLen, nextMoves);
+        nextMoves = canHaveAnswerLookup45(sortedPieces, bestAnsLen, nextMoves);
         if (nextMoves == 0) return 0;
         
         return nextMoves;
     }
     
-    private int canHaveAnswerLookup123(Bundle[] sortedBundles, int len, int bestAnsLen, int nextMoves) {
+    private int canHaveAnswerLookup123(Bundle[] sortedBundles, int bestAnsLen, int nextMoves) {
+        int len = sortedBundles.length;
         if (len <= 0) return nextMoves;
         
         int maxDigits = sortedBundles[0].numDigits();
@@ -85,7 +79,7 @@ public class PartialsLookup {
 
             if (partials.getMaxKnownNextSolutionLength123By1(shape1) < bestAnsLen) continue;
 
-            bundle1.makeBundleSwap1234(swap1);
+            int[] swap1 = bundle1.makeBundleSwap1234();
             
             int numSwapped = 0;
 
@@ -123,8 +117,13 @@ public class PartialsLookup {
         return nextMoves;
     }
 
-    private int canHaveAnswerLookup45(Bundle[] sortedBundles, int len, int bestAnsLen, int nextMoves) {
+    private int canHaveAnswerLookup45(Bundle[] sortedBundles, int bestAnsLen, int nextMoves) {
+        int len = sortedBundles.length;
         if (len <= 0) return nextMoves;
+        
+        int[] k2swap = new int[9];
+        int[] groupSize = new int[9];
+        int[] groupStartIndex = new int[9];
         
         int maxDigits = sortedBundles[0].numDigits();
     
@@ -262,39 +261,16 @@ public class PartialsLookup {
         return nextMoves;
     }
 
-    private int preparePieces(Bundle[] sortedBundles, int len, Bundle[] sortedPieces, int[] sortBuffer) {
+    private Bundle[] splitIntoPieces(Bundle[] sortedBundles) {
         int numDigits0 = sortedBundles[0].numDigits();
-        if (numDigits0 < Main.MIN_PIECE_CHECK_SIZE) return 0;//XXX
+        if (numDigits0 < Main.MIN_PIECE_CHECK_SIZE) return null;
         
-        int numPieces = 0;
-
-        for (int i = 0; i < len; i++) {
-            Bundle bundle = sortedBundles[i];
-            int heads = bundle.heads();
-            int digits = bundle.digits();
-            int numDigits = bundle.numDigits();
-
-            if (numDigits < numDigits0-1) break;
-            
-            for (int d = 0; d < Main.MAX_N; d++) {
-                int mask = 1 << d;
-                if ((heads & mask) != 0) {
-                    int piece = (mask << 9) | digits;
-                    int pieceShape = shape(1, numDigits);
-                    int sortablePiece = (pieceShape << (9+9)) | piece;
-                    
-                    sortBuffer[numPieces++] = -sortablePiece; // reverse sort order
-                }
-            }
-        }
-
-        Arrays.sort(sortBuffer, 0, numPieces);
+        Bundle[] pieces = Arrays.stream(sortedBundles)
+                .takeWhile(b -> b.numDigits() >= numDigits0 - 1)
+                .mapMulti((bundle, consumer) -> Arrays.stream(bundle.pieces()).forEach(consumer))
+                .toArray(Bundle[]::new);
         
-        for (int i = 0; i < numPieces; i++) {
-            sortedPieces[i] = Bundle.unpack((-sortBuffer[i]) & MASK_18);
-        }
-        
-        return numPieces;
+        return Bundle.sortBundles(pieces);
     }
 
     private static void debugHbaNextMoves(int nextMoves, int bestAnsLen, int length, Bundle... bundles) {

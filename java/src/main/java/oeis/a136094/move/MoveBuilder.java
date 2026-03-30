@@ -86,7 +86,7 @@ public class MoveBuilder {
             
             int remainingHeads = heads & ~moveMask;
             if (remainingHeads != 0) {
-                newBundles[r++] = Bundle.unpack((remainingHeads << 9) | bundle.digits());
+                newBundles[r++] = Bundle.of(remainingHeads, digits);
             }
         }
         next:
@@ -121,7 +121,7 @@ public class MoveBuilder {
                     if (heads == 0) continue next;
                 }
 
-                newBundles[r++] = Bundle.unpack((heads << 9) | digits);
+                newBundles[r++] = Bundle.of(heads, digits);
             }
         }
         return Arrays.copyOf(newBundles, r);
