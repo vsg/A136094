@@ -46,44 +46,23 @@ public class FileUtils {
     }
 
     public static void serializeObjectToFileGZ(File file, Serializable object) {
-        file.getAbsoluteFile().getParentFile().mkdirs();
-        File tmpFile = new File(file.getParentFile(), file.getName() + ".tmp");
-        try (OutputStream fileOut = new BufferedOutputStream(new FileOutputStream(tmpFile), IO_BUFFER_SIZE);
-                MiGzOutputStream migzOut = new MiGzOutputStream(fileOut, Main.NUM_WORKER_THREADS, MIGZ_BLOCK_SIZE);
-                ObjectOutputStream out = new ObjectOutputStream(migzOut)) {
-            out.writeObject(object);
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
-        if (file.exists()) {
-            if (!file.delete()) {
-                throw new RuntimeException("Could not delete file: " + file.getAbsolutePath());
+        compressUsingTmpFile(file, gzOut -> {
+            try (ObjectOutputStream out = new ObjectOutputStream(gzOut)) {
+                out.writeObject(object);
+            } catch(Exception e) {
+                throw new RuntimeException(e);
             }
-        }
-        if (!tmpFile.renameTo(file)) {
-            throw new RuntimeException("Could not rename file: " + tmpFile.getAbsolutePath() 
-                    + " -> " + file.getAbsolutePath());
-        }
+        });
     }
 
     public static void printWriteToFileGZ(File file, Consumer<PrintWriter> consumer) {
-        file.getAbsoluteFile().getParentFile().mkdirs();
-        File tmpFile = new File(file.getParentFile(), file.getName() + ".tmp");
-        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(tmpFile), IO_BUFFER_SIZE);
-                MiGzOutputStream gzOut = new MiGzOutputStream(out, Main.NUM_WORKER_THREADS, MIGZ_BLOCK_SIZE);
-                PrintWriter pw = new PrintWriter(gzOut)) {
-            consumer.accept(pw);
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (file.exists()) {
-            if (!file.delete()) {
-                throw new RuntimeException();
+        compressUsingTmpFile(file, gzOut -> {
+            try (PrintWriter pw = new PrintWriter(gzOut)) {
+                consumer.accept(pw);
+            } catch(Exception e) {
+                throw new RuntimeException(e);
             }
-        }
-        if (!tmpFile.renameTo(file)) {
-            throw new RuntimeException();
-        }
+        });
     }
 
     public static void readLinesFromFile(File file, Consumer<String> callback) {
@@ -106,29 +85,41 @@ public class FileUtils {
         return new FileReader(file);
     }
 
-    public static void compressFile(File file) {
+    public static void compressAndDeleteFile(File file) {
         if (!file.exists()) return;
         File gzipFile = new File(file.getPath() + ".gz");
         if (gzipFile.exists()) return;
         System.out.println(String.format("Compressing %s ...", file));
-        File tmpFile = new File(gzipFile.getPath() + ".tmp");
-        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(tmpFile), IO_BUFFER_SIZE);
-                MiGzOutputStream gzOut = new MiGzOutputStream(out, Main.NUM_WORKER_THREADS, MIGZ_BLOCK_SIZE);
-                FileInputStream in = new FileInputStream(file)) {
-            byte[] buf = new byte[65536];
-            int len;
-            while ((len = in.read(buf)) != -1) {
-                gzOut.write(buf, 0, len);
+        compressUsingTmpFile(gzipFile, gzOut -> {
+            try (FileInputStream in = new FileInputStream(file)) {
+                in.transferTo(gzOut);
+            } catch(Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
+        });
         if (!file.delete()) {
-            throw new RuntimeException();
-        }
-        if (!tmpFile.renameTo(gzipFile)) {
-            throw new RuntimeException();
+            throw new RuntimeException("Could not delete file: " + file.getAbsolutePath());
         }
     }
 
+    private static void compressUsingTmpFile(File resultFile, Consumer<OutputStream> consumer) {
+        resultFile.getAbsoluteFile().getParentFile().mkdirs();
+        File tmpFile = new File(resultFile.getPath() + ".tmp");
+        try (OutputStream fileOut = new BufferedOutputStream(new FileOutputStream(tmpFile), IO_BUFFER_SIZE);
+                MiGzOutputStream migzOut = new MiGzOutputStream(fileOut, Main.NUM_WORKER_THREADS, MIGZ_BLOCK_SIZE)) {
+            consumer.accept(migzOut);
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (resultFile.exists()) {
+            if (!resultFile.delete()) {
+                throw new RuntimeException("Could not delete file: " + resultFile.getAbsolutePath());
+            }
+        }
+        if (!tmpFile.renameTo(resultFile)) {
+            throw new RuntimeException("Could not rename file: " + tmpFile.getAbsolutePath() 
+                    + " -> " + resultFile.getAbsolutePath());
+        }
+    }
+    
 }

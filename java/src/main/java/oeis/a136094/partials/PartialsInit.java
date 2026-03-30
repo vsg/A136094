@@ -6,7 +6,7 @@ package oeis.a136094.partials;
 
 import static oeis.a136094.key.KeyUtils.K2;
 import static oeis.a136094.util.BitUtils.MASK_4;
-import static oeis.a136094.util.FileUtils.compressFile;
+import static oeis.a136094.util.FileUtils.compressAndDeleteFile;
 import static oeis.a136094.util.FileUtils.deserializeObjectFromFileGZ;
 import static oeis.a136094.util.FileUtils.printWriteToFileGZ;
 import static oeis.a136094.util.FileUtils.readLinesFromFile;
@@ -438,7 +438,7 @@ public class PartialsInit {
 
         checkpoint.shutdown();
         
-        compressFile(solutionsFile);
+        compressAndDeleteFile(solutionsFile);
         
         long end = System.currentTimeMillis();
         
