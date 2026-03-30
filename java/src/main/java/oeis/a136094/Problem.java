@@ -14,7 +14,7 @@ public class Problem {
     private volatile String answer;
     private volatile long solveDuration;
 
-    public Problem(Bundle[] bundles) {
+    public Problem(Bundle... bundles) {
         this(bundles, null);
     }
     

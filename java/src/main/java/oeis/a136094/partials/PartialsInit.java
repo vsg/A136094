@@ -61,9 +61,11 @@ public class PartialsInit {
         
         System.out.println("Calculating totals ...");
         
-        Map<String, Long> problemCountByShape = generateProblems(shapes);
+        Map<String, Long> problemCountByShape = calcProblemCounts(shapes);
+
+        long total = printTotalPrecalc(shapes, problemCountByShape);
         
-        AtomicLong totalPrecalc = new AtomicLong(calcTotalPrecalc(shapes, problemCountByShape));
+        AtomicLong totalPrecalc = new AtomicLong(total);
         AtomicLong currPrecalc = new AtomicLong(1);
         
         String checkpointShape = findLastExistingCheckpoint(checkpoints);
@@ -114,6 +116,7 @@ public class PartialsInit {
     }
 
     private static void savePrecalc(File file, Partials partials) {
+        if (Main.NO_SAVE_FILES) return;
         System.out.println("Writing " + file.getName() + " ...");
         serializeObjectToFileGZ(file, partials);
     }
@@ -173,12 +176,12 @@ public class PartialsInit {
         return shapes;
     }
 
-    private static Map<String, Long> generateProblems(List<String> shapes) {
+    private static Map<String, Long> calcProblemCounts(List<String> shapes) {
         Map<String, Long> counts = Collections.synchronizedMap(new LinkedHashMap<>());
         
         File countsFile = new File(COUNTS_FILE);
         if (countsFile.exists()) {
-            loadShapeCounts(countsFile, counts);
+            loadProblemCounts(countsFile, counts);
         }
 
         List<String> missing = shapes.stream()
@@ -187,30 +190,62 @@ public class PartialsInit {
 
         if (!missing.isEmpty()) {
             missing.forEach(shape -> {
-                long count = generateProblemsOfShape(shape);
+                long count = problemsOfShape(shape).size();
                 counts.put(shape, count);
             });
-            saveShapeCounts(countsFile, counts);
+            saveProblemCounts(countsFile, counts);
         }
         
         return counts;
     }
 
-    private static long generateProblemsOfShape(String shape) {
-        File problemsFile = shapeProblemsFile(shape);
-        if (problemsFile.exists()) {
-            return loadProblemsOfShape(shape).size();
-        }
-        System.out.println("Generating " + shape);
-        System.out.println("Writing " + problemsFile.getName());
-        AtomicLong count = new AtomicLong();
-        printWriteToFileGZ(problemsFile, (writer) -> {
-            iterateUniqueBundlesOfShape(shape, (bundles) -> {
-                count.incrementAndGet();
-                writer.println(Bundle.bundlesToString(bundles));
+    private static void loadProblemCounts(File countsFile, Map<String, Long> counts) {
+        readLinesFromFile(countsFile, line -> {
+            String[] split = line.trim().split(" ");
+            String shape = split[0];
+            Long count = Long.valueOf(split[1]);
+            counts.put(shape, count);
+        });
+    }
+
+    private static void saveProblemCounts(File countsFile, Map<String, Long> counts) {
+        if (Main.NO_SAVE_FILES) return;
+        printWriteToFileGZ(countsFile, writer -> {
+            counts.forEach((shape, count) -> {
+                writer.println(shape + " " + count);
             });
         });
-        return count.get();
+    }
+    
+    private static List<Bundle[]> problemsOfShape(String shape) {
+        List<Bundle[]> problems = new ArrayList<>();
+        File problemsFile = shapeProblemsFile(shape);
+        if (problemsFile.exists()) {
+            loadProblemsOfShape(problemsFile, problems);
+        } else {
+            //System.out.println("Generating problems " + shape);
+            iterateUniqueBundlesOfShape(shape, (bundles) -> {
+                problems.add(bundles);
+            });
+            saveProblemsOfShape(problemsFile, problems);
+        }
+        return problems;
+    }
+
+    private static void loadProblemsOfShape(File problemsFile, List<Bundle[]> result) {
+        readLinesFromFile(problemsFile, (line) -> {
+            result.add(Bundle.parseBundles(line));
+        });
+    }
+
+    private static void saveProblemsOfShape(File problemsFile, List<Bundle[]> problems) {
+        if (Main.NO_SAVE_FILES) return;
+        System.out.println("Writing problems " + problemsFile.getName());
+        printWriteToFileGZ(problemsFile, (writer) -> {
+            for (Bundle[] bundles : problems) {
+                writer.println(Bundle.bundlesToString(bundles));
+            }
+        });
     }
     
     private static void iterateUniqueBundlesOfShape(String shape, Consumer<Bundle[]> callback) {
@@ -224,23 +259,6 @@ public class PartialsInit {
         });
     }
     
-    private static void saveShapeCounts(File countsFile, Map<String, Long> counts) {
-        printWriteToFileGZ(countsFile, writer -> {
-            counts.forEach((shape, count) -> {
-                writer.println(shape + " " + count);
-            });
-        });
-    }
-    
-    private static void loadShapeCounts(File countsFile, Map<String, Long> counts) {
-        readLinesFromFile(countsFile, line -> {
-            String[] split = line.trim().split(" ");
-            String shape = split[0];
-            Long count = Long.valueOf(split[1]);
-            counts.put(shape, count);
-        });
-    }
-
     // may skip k1 and k2 dups; bundles 3-4-5 are sorted.
     private static void iterateBundlesOfShape(String shape, boolean skipK1Dups, boolean skipK2Dups, Consumer<Bundle[]> callback) {
         int[] shapes = ShapeInfo.parseShape(shape);
@@ -382,30 +400,13 @@ public class PartialsInit {
         return new File(String.format("precalc-%s.bin.gz", shape.replace('/', '@')));
     }
     
-    private static List<Bundle[]> loadProblemsOfShape(String shape) {
-        File problemsFile = shapeProblemsFile(shape);
-        if (!problemsFile.exists()) {
-            throw new RuntimeException("Problems not found for shape " + shape);
-        }
-        //System.out.println("Reading " + shapeFileName);
-        List<Bundle[]> problems = new ArrayList<>();
-        readLinesFromFile(problemsFile, (line) -> {
-            problems.add(Bundle.parseBundles(line));
-        });
-        return problems;
-    }
-
-    private static long calcTotalPrecalc(List<String> shapes, Map<String, Long> shapeBundleCounts) {
-        long totalPrecalc = 0;
-        long[] precalcBySize = new long[10];
+    private static long printTotalPrecalc(List<String> shapes, Map<String, Long> shapeBundleCounts) {
+        long totalPrecalc = shapes.stream().mapToLong(shapeBundleCounts::get).sum();
         
+        long[] precalcBySize = new long[10];
         for (String shape : shapes) {
-            Long numBundles = shapeBundleCounts.get(shape);
-            
             int shapeSize = new ShapeInfo(shape).maxSize;
-            precalcBySize[shapeSize] += numBundles;
-            
-            totalPrecalc += numBundles;
+            precalcBySize[shapeSize] += shapeBundleCounts.get(shape);
         }
         
         System.out.println("Total precalc: " + totalPrecalc + " " + Arrays.toString(precalcBySize));
@@ -417,7 +418,7 @@ public class PartialsInit {
         System.out.println(String.format("Precalc shape %s (%d / %d)", shape, currPrecalc.get(), totalPrecalc.get()));
         long begin = System.currentTimeMillis();
         
-        List<Bundle[]> uniqueBundles = loadProblemsOfShape(shape);
+        List<Bundle[]> uniqueBundles = problemsOfShape(shape);
         
         File solutionsFile = shapeSolutionsFile(shape);
         

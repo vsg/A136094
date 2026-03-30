@@ -37,7 +37,9 @@ public class Checkpoint implements Runnable {
         this.file = file;
         this.thread = new Thread(this);
         this.thread.setDaemon(true);
-        this.thread.start();
+        if (!Main.NO_SAVE_FILES) {
+            this.thread.start();
+        }
     }
 
     private static void loadSolutions(File file, Map<Key, Integer> solutions) {

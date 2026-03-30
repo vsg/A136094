@@ -13,7 +13,7 @@ import oeis.a136094.util.LogUtils;
 
 public class Main {
 
-    public static int MAX_N = 8;
+    public static int MAX_N = 7;
     
     public static int MIN_PIECE_CHECK_SIZE = MAX_N-2;
     
@@ -36,6 +36,7 @@ public class Main {
     public static boolean PRINT_PROGRESS = true;
     
     public static boolean NO_APPLY = false;
+    public static boolean NO_SAVE_FILES = false;
     
     public static String MAX_PRECALC_SHAPE = null;
     public static String CHECKPOINT_SHAPES = null;
