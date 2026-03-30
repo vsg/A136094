@@ -5,6 +5,7 @@
 package oeis.a136094.partials;
 
 import static oeis.a136094.key.KeyUtils.K2;
+import static oeis.a136094.util.BitUtils.MASK_4;
 import static oeis.a136094.util.FileUtils.compressFile;
 import static oeis.a136094.util.FileUtils.deserializeObjectFromFileGZ;
 import static oeis.a136094.util.FileUtils.printWriteToFileGZ;
@@ -12,7 +13,6 @@ import static oeis.a136094.util.FileUtils.readLinesFromFile;
 import static oeis.a136094.util.FileUtils.serializeObjectToFileGZ;
 import static oeis.a136094.util.ParallelUtils.processInBatches;
 import static oeis.a136094.util.ParallelUtils.processInParallel;
-import static oeis.a136094.util.Utils.MASK_4;
 
 import java.io.File;
 import java.util.ArrayList;

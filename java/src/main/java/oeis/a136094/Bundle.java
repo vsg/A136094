@@ -5,8 +5,10 @@
 package oeis.a136094;
 
 import static java.lang.Integer.bitCount;
-import static oeis.a136094.util.Utils.MASK_18;
-import static oeis.a136094.util.Utils.MASK_9;
+import static oeis.a136094.util.BitUtils.BITWISE_OR;
+import static oeis.a136094.util.BitUtils.MASK_18;
+import static oeis.a136094.util.BitUtils.MASK_9;
+import static oeis.a136094.util.BitUtils.digitsMaskToString;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,7 +45,7 @@ public class Bundle {
                         if ((heads & ~digits) != 0) continue;
 
                         int bundleIndex = numBundles++;
-                        String bundleStr = digitsToString(heads) + "/" + digitsToString(digits);
+                        String bundleStr = digitsMaskToString(heads) + "/" + digitsMaskToString(digits);
                         
                         Bundle bundle = new Bundle(heads, digits, bundleIndex);
                         int shape = bundle.shape();
@@ -174,13 +176,13 @@ public class Bundle {
     public static int heads(Bundle[] bundles) {
         return Arrays.stream(bundles)
                 .mapToInt(Bundle::heads)
-                .reduce(0, (a, b) -> a | b);
+                .reduce(0, BITWISE_OR);
     }
-
+    
     public static int digits(Bundle[] bundles) {
         return Arrays.stream(bundles)
                 .mapToInt(Bundle::digits)
-                .reduce(0, (a, b) -> a | b);
+                .reduce(0, BITWISE_OR);
     }
     
     public static String bundlesToString(Bundle... bundles) {
@@ -197,16 +199,6 @@ public class Bundle {
 
     public static int shape(int numHeads, int numDigits) {
         return (numDigits << 4) | numHeads;
-    }
-
-    public static String digitsToString(int mask) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 9; i++) {
-            if (((mask >> i) & 1) != 0) {
-                builder.append((char)('1' + i));
-            }
-        }
-        return builder.toString();
     }
 
     public static Bundle[] sortBundles(Bundle[] bundles) {

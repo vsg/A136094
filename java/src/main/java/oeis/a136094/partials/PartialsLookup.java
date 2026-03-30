@@ -7,7 +7,8 @@ package oeis.a136094.partials;
 import static oeis.a136094.Bundle.heads;
 import static oeis.a136094.Bundle.shape;
 import static oeis.a136094.key.KeyUtils.K2;
-import static oeis.a136094.util.Utils.MASK_18;
+import static oeis.a136094.util.BitUtils.MASK_18;
+import static oeis.a136094.util.BitUtils.digitsMaskToString;
 
 import java.util.Arrays;
 
@@ -275,9 +276,9 @@ public class PartialsLookup {
             System.out.println("canHaveAnswer: " 
                     + Bundle.bundlesToString(bundles) 
                     + ", bestAnsLen = " + bestAnsLen + ", length = " + length 
-                    + ", nextMoves = " + nextMoves + " [" + Bundle.digitsToString(nextMoves) + "]" 
-                    + ", heads = " + heads + " [" + Bundle.digitsToString(heads) + "]"
-                    + " => nextMoves = " + (nextMoves & heads) + " [" + Bundle.digitsToString(nextMoves & heads) + "]");
+                    + ", nextMoves = " + nextMoves + " [" + digitsMaskToString(nextMoves) + "]" 
+                    + ", heads = " + heads + " [" + digitsMaskToString(heads) + "]"
+                    + " => nextMoves = " + (nextMoves & heads) + " [" + digitsMaskToString(nextMoves & heads) + "]");
         }
     }
 
@@ -285,7 +286,7 @@ public class PartialsLookup {
         System.out.println("canHaveAnswer: " 
                 + Bundle.bundlesToString(bundles) 
                 + ", bestAnsLen = " + bestAnsLen + ", length = " + length 
-                + ", nextMoves = " + nextMoves + " [" + Bundle.digitsToString(nextMoves) + "]");
+                + ", nextMoves = " + nextMoves + " [" + digitsMaskToString(nextMoves) + "]");
     }
     
 }

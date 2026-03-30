@@ -10,7 +10,7 @@ import java.util.List;
 import oeis.a136094.Bundle;
 import oeis.a136094.Main;
 import oeis.a136094.partials.Partials;
-import oeis.a136094.util.Utils;
+import oeis.a136094.util.LogUtils;
 
 public class BFSSolver extends Solver {
 
@@ -31,7 +31,7 @@ public class BFSSolver extends Solver {
                 long now = System.currentTimeMillis();
                 long totalTime = now - begin;
                 long plusTime = now - lastProgressTime;
-                System.out.println(Utils.formatLog("%s %d %d %d [%d ms, +%d ms]; %s", 
+                System.out.println(LogUtils.formatLog("%s %d %d %d [%d ms, +%d ms]; %s", 
                         Bundle.bundlesToString(bundles0), bestAnsLen, level, numNodes, totalTime, plusTime, 
                         Bundle.bundlesToString(someNode.sortedBundles)));
                 lastProgressTime = now;

@@ -9,7 +9,7 @@ import static oeis.a136094.Bundle.parseBundles;
 import oeis.a136094.partials.Partials;
 import oeis.a136094.partials.PartialsInit;
 import oeis.a136094.solver.Solver;
-import oeis.a136094.util.Utils;
+import oeis.a136094.util.LogUtils;
 
 public class Main {
 
@@ -159,10 +159,10 @@ public class Main {
             solveDefaultProblems(partials);
             long solveEnd = System.currentTimeMillis();
             
-            System.out.println(Utils.formatLog("precalc %s", Utils.timeStr(precalcEnd - precalcBegin)));
-            System.out.println(Utils.formatLog("precalc calc %s", Utils.timeStr(PartialsInit.totalPrecalcCalcTime)));
-            System.out.println(Utils.formatLog("solve %s", Utils.timeStr(solveEnd - solveBegin)));
-            System.out.println(Utils.formatLog("total %s", Utils.timeStr(solveEnd - precalcBegin)));
+            System.out.println(LogUtils.formatLog("precalc %s", LogUtils.timeStr(precalcEnd - precalcBegin)));
+            System.out.println(LogUtils.formatLog("precalc calc %s", LogUtils.timeStr(PartialsInit.totalPrecalcCalcTime)));
+            System.out.println(LogUtils.formatLog("solve %s", LogUtils.timeStr(solveEnd - solveBegin)));
+            System.out.println(LogUtils.formatLog("total %s", LogUtils.timeStr(solveEnd - precalcBegin)));
         }
     }
 

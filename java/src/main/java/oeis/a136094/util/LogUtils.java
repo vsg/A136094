@@ -8,11 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
-public class Utils {
-
-    public static final int MASK_18 = (1 << 18) - 1;
-    public static final int MASK_9 = (1 << 9) - 1;
-    public static final int MASK_4 = (1 << 4) - 1;
+public class LogUtils {
 
     private static final DateTimeFormatter LOG_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     

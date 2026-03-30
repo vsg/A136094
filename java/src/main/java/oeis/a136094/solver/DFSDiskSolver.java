@@ -35,7 +35,7 @@ import oeis.a136094.key.Key;
 import oeis.a136094.move.MoveBuilder;
 import oeis.a136094.partials.Partials;
 import oeis.a136094.util.MemoryEfficientHashSet;
-import oeis.a136094.util.Utils;
+import oeis.a136094.util.LogUtils;
 
 public class DFSDiskSolver extends Solver {
 
@@ -179,7 +179,7 @@ public class DFSDiskSolver extends Solver {
 
         public void print(String message) {
             if (Main.PRINT_PROGRESS) {
-                System.out.println(Utils.formatLog("%s %d %d %s: %s", 
+                System.out.println(LogUtils.formatLog("%s %d %d %s: %s", 
                         Bundle.bundlesToString(bundles0), bestAnsLen, level, minPrefix, message));
             }
         }
@@ -304,7 +304,7 @@ public class DFSDiskSolver extends Solver {
 
         long endBlock = System.currentTimeMillis();
 
-        progress.print("block = " + Utils.timeStr(endBlock - beginBlock));
+        progress.print("block = " + LogUtils.timeStr(endBlock - beginBlock));
 
         return null;
     }

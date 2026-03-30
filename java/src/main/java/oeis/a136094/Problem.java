@@ -5,7 +5,7 @@
 package oeis.a136094;
 
 import oeis.a136094.key.Key;
-import oeis.a136094.util.Utils;
+import oeis.a136094.util.LogUtils;
 
 public class Problem {
 
@@ -45,7 +45,7 @@ public class Problem {
     }
     
     public void printResult(String suffix) {
-        System.out.println(Utils.formatLog("%s => %s [%d], %d ms%s", 
+        System.out.println(LogUtils.formatLog("%s => %s [%d], %d ms%s", 
                 Bundle.bundlesToString(bundles), answer, answer != null ? answer.length() : 0, solveDuration, suffix));
     }
     

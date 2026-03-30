@@ -5,7 +5,7 @@
 package oeis.a136094.key;
 
 import static java.lang.Integer.bitCount;
-import static oeis.a136094.util.Utils.MASK_9;
+import static oeis.a136094.util.BitUtils.MASK_9;
 
 import oeis.a136094.Bundle;
 

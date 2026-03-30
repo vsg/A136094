@@ -17,7 +17,7 @@ import oeis.a136094.Bundle;
 import oeis.a136094.Main;
 import oeis.a136094.key.Key;
 import oeis.a136094.partials.Partials;
-import oeis.a136094.util.Utils;
+import oeis.a136094.util.LogUtils;
 
 public class DFSBatchSolver extends Solver {
 
@@ -46,7 +46,7 @@ public class DFSBatchSolver extends Solver {
                 long now = System.currentTimeMillis();
                 long totalTime = now - begin;
                 long plusTime = now - lastProgressTime;
-                System.out.println(Utils.formatLog("%s %d %d, %d moves, %d cache, %s [%d ms, +%d ms] {%d, %d}", 
+                System.out.println(LogUtils.formatLog("%s %d %d, %d moves, %d cache, %s [%d ms, +%d ms] {%d, %d}", 
                         Bundle.bundlesToString(bundles0), bestAnsLen, node.prefix.length(), numNodesDone, totalCached, 
                         node.prefix, totalTime, plusTime, processorQueueSize, orderingQueueSize));
                 lastProgressTime = now;

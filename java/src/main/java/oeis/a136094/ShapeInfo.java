@@ -5,7 +5,7 @@
 package oeis.a136094;
 
 import static oeis.a136094.Bundle.shape;
-import static oeis.a136094.util.Utils.MASK_4;
+import static oeis.a136094.util.BitUtils.MASK_4;
 
 public class ShapeInfo {
     
