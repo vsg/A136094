@@ -80,16 +80,8 @@ public class PartialsLookup {
 
             if (numDigits1 < maxDigits) break;
             
-            int length1 = partials.getSolutionLength1(shape1);
-            if (length1 >= bestAnsLen) {
-                Bundle[] bundles = new Bundle[] {bundle1};
-                if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length1, bundles);
-                nextMoves &= heads(bundles);
-                if (length1 > bestAnsLen || nextMoves == 0) {
-                    if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length1, bundles);
-                    return 0;
-                }
-            }
+            nextMoves = checkSolutionLength1(shape1, bestAnsLen, nextMoves, bundle1);
+            if (nextMoves == 0) return 0;
 
             if (partials.getMaxKnownNextSolutionLength123By1(shape1) < bestAnsLen) continue;
 
@@ -114,16 +106,8 @@ public class PartialsLookup {
                 Bundle bundle2 = originalBundles[index2];
                 Bundle bundle22 = swappedBundles[index2];
                 
-                int length2 = partials.getSolutionLength2(shape1, bundle22);
-                if (length2 >= bestAnsLen) {
-                    Bundle[] bundles = new Bundle[] {bundle1, bundle2};
-                    if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length2, bundles);
-                    nextMoves &= heads(bundles);
-                    if (length2 > bestAnsLen || nextMoves == 0) {
-                        if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length2, bundles);
-                        return 0;
-                    }
-                }
+                nextMoves = checkSolutionLength2(shape1, bundle22, bestAnsLen, nextMoves, bundle1, bundle2);
+                if (nextMoves == 0) return 0;
 
                 if (partials.getMaxKnownNextSolutionLength123By2(shape1, bundle22) < bestAnsLen) continue;
 
@@ -131,22 +115,14 @@ public class PartialsLookup {
                     Bundle bundle3 = originalBundles[index3];
                     Bundle bundle33 = swappedBundles[index3];
                     
-                    int length3 = partials.getSolutionLength3(shape1, bundle22, bundle33);
-                    if (length3 >= bestAnsLen) {
-                        Bundle[] bundles = new Bundle[] {bundle1, bundle2, bundle3};
-                        if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length3, bundles);
-                        nextMoves &= heads(bundles);
-                        if (length3 > bestAnsLen || nextMoves == 0) {
-                            if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length3, bundles);
-                            return 0;
-                        }
-                    }
+                    nextMoves = checkSolutionLength3(shape1, bundle22, bundle33, bestAnsLen, nextMoves, bundle1, bundle2, bundle3);
+                    if (nextMoves == 0) return 0;
                 }
             }
         }
         return nextMoves;
     }
-    
+
     private int canHaveAnswerLookup45(Bundle[] sortedBundles, int len, int bestAnsLen, int nextMoves) {
         if (len <= 0) return nextMoves;
         
@@ -200,16 +176,9 @@ public class PartialsLookup {
                         Bundle bundle4 = originalBundles[index4];
                         Bundle bundle44 = swappedBundles[index4];
                         
-                        int length4 = partials.getSolutionLength4(k2, bundle33, bundle44);
-                        if (length4 >= bestAnsLen) {
-                            Bundle[] bundles = new Bundle[] {bundle1, bundle2, bundle3, bundle4};
-                            if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length4, bundles);
-                            nextMoves &= heads(bundles);
-                            if (length4 > bestAnsLen || nextMoves == 0) {
-                                if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length4, bundles);
-                                return 0;
-                            }
-                        }
+                        nextMoves = checkSolutionLength4(k2, bundle33, bundle44, bestAnsLen, nextMoves, 
+                                bundle1, bundle2, bundle3, bundle4);
+                        if (nextMoves == 0) return 0;
         
                         if (partials.getMaxKnownNextSolutionLength45By4(k2, bundle33, bundle44) < bestAnsLen) continue;
                         
@@ -217,16 +186,9 @@ public class PartialsLookup {
                             Bundle bundle5 = originalBundles[index5];
                             Bundle bundle55 = swappedBundles[index5];
         
-                            int length5 = partials.getSolutionLength5(k2, bundle33, bundle44, bundle55);
-                            if (length5 >= bestAnsLen) {
-                                Bundle[] bundles = new Bundle[] {bundle1, bundle2, bundle3, bundle4, bundle5};
-                                if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length5, bundles);
-                                nextMoves &= heads(bundles);
-                                if (length5 > bestAnsLen || nextMoves == 0) {
-                                    if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length5, bundles);
-                                    return 0;
-                                }
-                            }
+                            nextMoves = checkSolutionLength5(k2, bundle33, bundle44, bundle55, bestAnsLen, nextMoves, 
+                                    bundle1, bundle2, bundle3, bundle4, bundle5);
+                            if (nextMoves == 0) return 0;
                         }
                     }
                 }
@@ -234,7 +196,72 @@ public class PartialsLookup {
         }
         return nextMoves;
     }
+
+    private int checkSolutionLength1(int shape1, int bestAnsLen, int nextMoves, Bundle... bundles) {
+        int length1 = partials.getSolutionLength1(shape1);
+        if (length1 >= bestAnsLen) {
+            if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length1, bundles);
+            nextMoves &= heads(bundles);
+            if (length1 > bestAnsLen || nextMoves == 0) {
+                if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length1, bundles);
+                return 0;
+            }
+        }
+        return nextMoves;
+    }
     
+    private int checkSolutionLength2(int shape1, Bundle bundle22, int bestAnsLen, int nextMoves, Bundle... bundles) {
+        int length2 = partials.getSolutionLength2(shape1, bundle22);
+        if (length2 >= bestAnsLen) {
+            if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length2, bundles);
+            nextMoves &= heads(bundles);
+            if (length2 > bestAnsLen || nextMoves == 0) {
+                if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length2, bundles);
+                return 0;
+            }
+        }
+        return nextMoves;
+    }
+
+    private int checkSolutionLength3(int shape1, Bundle bundle22, Bundle bundle33, int bestAnsLen, int nextMoves, Bundle... bundles) {
+        int length3 = partials.getSolutionLength3(shape1, bundle22, bundle33);
+        if (length3 >= bestAnsLen) {
+            if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length3, bundles);
+            nextMoves &= heads(bundles);
+            if (length3 > bestAnsLen || nextMoves == 0) {
+                if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length3, bundles);
+                return 0;
+            }
+        }
+        return nextMoves;
+    }
+
+    private int checkSolutionLength4(int k2, Bundle bundle33, Bundle bundle44, int bestAnsLen, int nextMoves, Bundle... bundles) {
+        int length4 = partials.getSolutionLength4(k2, bundle33, bundle44);
+        if (length4 >= bestAnsLen) {
+            if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length4, bundles);
+            nextMoves &= heads(bundles);
+            if (length4 > bestAnsLen || nextMoves == 0) {
+                if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length4, bundles);
+                return 0;
+            }
+        }
+        return nextMoves;
+    }
+
+    private int checkSolutionLength5(int k2, Bundle bundle33, Bundle bundle44, Bundle bundle55, int bestAnsLen, int nextMoves, Bundle... bundles) {
+        int length5 = partials.getSolutionLength5(k2, bundle33, bundle44, bundle55);
+        if (length5 >= bestAnsLen) {
+            if (Main.DEBUG) debugHbaNextMoves(nextMoves, bestAnsLen, length5, bundles);
+            nextMoves &= heads(bundles);
+            if (length5 > bestAnsLen || nextMoves == 0) {
+                if (Main.DEBUG) debugHbaResult(nextMoves, bestAnsLen, length5, bundles);
+                return 0;
+            }
+        }
+        return nextMoves;
+    }
+
     private int preparePieces(Bundle[] sortedBundles, int len, Bundle[] sortedPieces, int[] sortBuffer) {
         int numDigits0 = sortedBundles[0].numDigits();
         if (numDigits0 < Main.MIN_PIECE_CHECK_SIZE) return 0;//XXX
