@@ -13,6 +13,10 @@ public class Permutations {
 
     private static final int[][][][] permutations = generatePermutations();
     
+    public static int[][] permutations(int numDigits) {
+        return permutations(numDigits, new int[] {numDigits});
+    }
+    
     public static int[][] permutations(int numDigits, int[] groupSize) {
         int groupsMask = groupsMask(numDigits, groupSize);
         return permutations[numDigits][groupsMask];

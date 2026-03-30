@@ -196,7 +196,7 @@ public class PartialsInit {
         return counts;
     }
 
-    public static long generateProblemsOfShape(String shape) {
+    private static long generateProblemsOfShape(String shape) {
         File problemsFile = shapeProblemsFile(shape);
         if (problemsFile.exists()) {
             return loadProblemsOfShape(shape).size();
@@ -213,7 +213,7 @@ public class PartialsInit {
         return count.get();
     }
     
-    public static void iterateUniqueBundlesOfShape(String shape, Consumer<Bundle[]> callback) {
+    private static void iterateUniqueBundlesOfShape(String shape, Consumer<Bundle[]> callback) {
         Set<Key> seen = new MemoryEfficientHashSet<>();
         KeyBuilder.generateKeysInParallel((consumer) -> {
             iterateBundlesOfShape(shape, true, true, consumer);
@@ -242,7 +242,7 @@ public class PartialsInit {
     }
 
     // may skip k1 and k2 dups; bundles 3-4-5 are sorted.
-    public static void iterateBundlesOfShape(String shape, boolean skipK1Dups, boolean skipK2Dups, Consumer<Bundle[]> callback) {
+    private static void iterateBundlesOfShape(String shape, boolean skipK1Dups, boolean skipK2Dups, Consumer<Bundle[]> callback) {
         int[] shapes = ShapeInfo.parseShape(shape);
         
         int shape1 = (shapes.length > 0) ? shapes[0] : 0;
@@ -358,7 +358,7 @@ public class PartialsInit {
     }
 
     // is bundle2 a duplicate of bundle1, either whole or partially
-    public static boolean isDup(Bundle bundle1, Bundle bundle2) {
+    private static boolean isDup(Bundle bundle1, Bundle bundle2) {
         int heads1 = bundle1.heads();
         int heads2 = bundle2.heads(); 
         int digits1 = bundle1.digits();
@@ -378,11 +378,11 @@ public class PartialsInit {
         return new File(String.format("%s/%sx%s/%s.txt", SOLUTIONS_DIR, shape.charAt(2), shape.split(",").length, shape.replace('/', '@')));
     }
 
-    public static File checkpointFile(String shape) {
+    private static File checkpointFile(String shape) {
         return new File(String.format("precalc-%s.bin.gz", shape.replace('/', '@')));
     }
     
-    public static List<Bundle[]> loadProblemsOfShape(String shape) {
+    private static List<Bundle[]> loadProblemsOfShape(String shape) {
         File problemsFile = shapeProblemsFile(shape);
         if (!problemsFile.exists()) {
             throw new RuntimeException("Problems not found for shape " + shape);

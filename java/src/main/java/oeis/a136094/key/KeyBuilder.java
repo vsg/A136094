@@ -18,7 +18,9 @@ import oeis.a136094.Main;
 import oeis.a136094.util.Generator;
 
 public class KeyBuilder {
-        
+    
+    private static final int[] DIGITS = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    
     private final long[] hash = new long[9];
     private final int[] groupSizes = new int[9];
     private final int[] key1 = new int[256];
@@ -31,11 +33,7 @@ public class KeyBuilder {
             return new Key(new int[0]);
         }
         
-        int[] digits = new int[9];
-        for (int d = 0; d < 9; d++) {
-            digits[d] = d;
-        }
-        
+        int[] digits = Arrays.copyOf(DIGITS, DIGITS.length);
         int digitsMask = digits(sortedBundles);
         int numDigits = bitCount(digitsMask);
 
@@ -49,10 +47,10 @@ public class KeyBuilder {
         return findMinKeyUsingPermutations(sortedBundles, len, digits, groupSizes, numDigits, null);
     }
     
-    // sort digits by their hash. calculate consecutive equivalence groups of sorted digits.
-    // digits within each group have the same hash and produce equivalent bundles (having same shortest 
+    // Sort digits by their hash. Calculate consecutive equivalence groups of sorted digits.
+    // Digits within each group have the same hash and produce equivalent bundles (having same shortest 
     // solution length), when applied as permutation of bundle digits.
-    // missing digits are sorted to go at the end, not participating in groups and their permutations.
+    // Missing digits are sorted to go at the end, not participating in groups and their permutations.
     private void calculateDigitGroups(int[] digits, long[] hash, int[] groupSizes) {
         //Arrays.sort(digits, Comparator.comparing(d -> hash[d]));
         for (int i = 1; i < 9; i++) {

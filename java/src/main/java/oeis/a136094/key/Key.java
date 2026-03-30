@@ -20,6 +20,10 @@ public class Key implements Serializable {
         this.hashCode = Arrays.hashCode(values);
     }
 
+    public Bundle[] asBundles() {
+        return Bundle.unpackAll(values);
+    }
+    
     public int size() {
         return values.length;
     }
@@ -40,7 +44,7 @@ public class Key implements Serializable {
 
     @Override
     public String toString() {
-        return Bundle.bundlesToString(Bundle.unpackAll(values));
+        return Bundle.bundlesToString(asBundles());
     }
     
 }

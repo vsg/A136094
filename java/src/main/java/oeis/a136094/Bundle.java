@@ -10,8 +10,10 @@ import static oeis.a136094.util.BitUtils.MASK_18;
 import static oeis.a136094.util.BitUtils.MASK_9;
 import static oeis.a136094.util.BitUtils.digitsMaskToString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,7 @@ public class Bundle {
     
     public static final int[] MAX_BUNDLE_INDEX_OF_SHAPE = new int[256];
     public static final Bundle[][] BUNDLES_OF_SHAPE = new Bundle[256][];
+    public static final List<Bundle> ALL_BUNDLES = new ArrayList<>();
 
     private static final Bundle[] packedToBundle = new Bundle[1<<18];
     private static final String[] indexToString = new String[20000];
@@ -60,6 +63,8 @@ public class Bundle {
                         bundlesByShape[shape][numShapeBundles] = bundle;
                         
                         MAX_BUNDLE_INDEX_OF_SHAPE[shape] = bundleIndex;
+                        
+                        ALL_BUNDLES.add(bundle);
                     }
                 }
             }
