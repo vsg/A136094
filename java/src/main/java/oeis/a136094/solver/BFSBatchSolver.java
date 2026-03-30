@@ -57,22 +57,22 @@ public class BFSBatchSolver extends Solver {
     public String solve(Bundle[] bundles0, int bestAnsLen) {
         Progress progress = new Progress(bundles0, bestAnsLen);
         
-        BlockingQueue<Batch> processQueue = new LinkedBlockingQueue<>();
+        BlockingQueue<Batch> processorQueue = new LinkedBlockingQueue<>();
         
-        BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processQueue);
+        BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processorQueue);
         new Thread(batchProcessor).start();
         
         Bundle[] sortedBundles0 = Bundle.sortBundles(bundles0);
         Node node0 = new Node("", sortedBundles0, null);
         
-        String answer = solveBFS(node0, bestAnsLen, processQueue, progress);
+        String answer = solveBFS(node0, bestAnsLen, processorQueue, progress);
         
         batchProcessor.shutdown();
         
         return answer;
     }
 
-    private String solveBFS(Node node0, int bestAnsLen, Queue<Batch> processQueue, Progress progress) {
+    private String solveBFS(Node node0, int bestAnsLen, Queue<Batch> processorQueue, Progress progress) {
         List<Node> nodes = Arrays.asList(node0);
         for (int level = 0; level <= bestAnsLen; level++) {
             if (nodes.isEmpty()) break;
@@ -80,7 +80,7 @@ public class BFSBatchSolver extends Solver {
 
             List<Batch> batches = makeBatches(bestAnsLen, nodes);
             
-            processQueue.addAll(batches);
+            processorQueue.addAll(batches);
             
             Set<Key> seen = new MemoryEfficientHashSet<>();
             

@@ -263,12 +263,12 @@ public class DFSDiskSolver extends Solver {
         AtomicLong numInNodes = new AtomicLong();
         AtomicLong numOutPrefixes = new AtomicLong();
         
-        BlockingQueue<Batch> processQueue = new LinkedBlockingQueue<>();
+        BlockingQueue<Batch> processorQueue = new LinkedBlockingQueue<>();
         BlockingQueue<Batch> orderingQueue = new ArrayBlockingQueue<>(5);
         
         BlockReader blockReader = new BlockReader(prefixesFile, bundles0, bestAnsLen, (batch) -> {
             try {
-                processQueue.add(batch);
+                processorQueue.add(batch);
                 orderingQueue.add(batch);
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -277,7 +277,7 @@ public class DFSDiskSolver extends Solver {
         });
         new Thread(blockReader).start();
         
-        BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processQueue);
+        BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processorQueue);
         new Thread(batchProcessor).start();
 
         String answer = solveBlock(orderingQueue, bestAnsLen, blockWriter, numInNodes, numOutPrefixes, progress);

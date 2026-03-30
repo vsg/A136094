@@ -42,14 +42,14 @@ public class DFSBatchSolver extends Solver {
             numNodesDone++;
         }
 
-        public void printProgress(Node node, long totalCached, int processQueueSize, int orderingQueueSize) {
+        public void printProgress(Node node, long totalCached, int processorQueueSize, int orderingQueueSize) {
             if (Main.PRINT_PROGRESS) {
                 long now = System.currentTimeMillis();
                 long totalTime = now - begin;
                 long plusTime = now - lastProgressTime;
                 System.out.println(Utils.formatLog("%s %d %d, %d moves, %d cache, %s [%d ms, +%d ms] {%d, %d}", 
                         Bundle.bundlesToString(bundles0), bestAnsLen, node.prefix.length(), numNodesDone, totalCached, 
-                        node.prefix, totalTime, plusTime, processQueueSize, orderingQueueSize));
+                        node.prefix, totalTime, plusTime, processorQueueSize, orderingQueueSize));
                 lastProgressTime = now;
             }
         }
@@ -64,30 +64,30 @@ public class DFSBatchSolver extends Solver {
     public String solve(Bundle[] bundles0, int bestAnsLen) {
         Progress progress = new Progress(bundles0, bestAnsLen);
         
-        PriorityBlockingQueue<Batch> processQueue = new PriorityBlockingQueue<>(100, BATCH_PREFIX_COMPARATOR);
+        PriorityBlockingQueue<Batch> processorQueue = new PriorityBlockingQueue<>(100, BATCH_PREFIX_COMPARATOR);
         PriorityQueue<Batch> orderingQueue = new PriorityQueue<>(BATCH_PREFIX_COMPARATOR);
 
-        BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processQueue);
+        BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processorQueue);
         new Thread(batchProcessor).start();
 
         Bundle[] sortedBundles0 = Bundle.sortBundles(bundles0);
         Node node0 = new Node("", sortedBundles0, null);
         Batch batch0 = new Batch(bestAnsLen, Arrays.asList(node0));
         
-        processQueue.add(batch0);
+        processorQueue.add(batch0);
         orderingQueue.add(batch0);
         
         SeenCache seenCache = new SeenCache();
         Supplier<Long> maxCacheSize = () -> Main.DFS_BATCH_MAX_CACHE;
         
-        String answer = solveDFSBatch(processQueue, orderingQueue, bestAnsLen, seenCache, maxCacheSize, progress);
+        String answer = solveDFSBatch(processorQueue, orderingQueue, bestAnsLen, seenCache, maxCacheSize, progress);
         
         batchProcessor.shutdown();
         
         return answer;
     }
 
-    protected String solveDFSBatch(Queue<Batch> processQueue, Queue<Batch> orderingQueue, int bestAnsLen, 
+    protected String solveDFSBatch(Queue<Batch> processorQueue, Queue<Batch> orderingQueue, int bestAnsLen, 
             SeenCache seenCache, Supplier<Long> maxCacheSize, Progress progress) {
         long numNodesSinceCleanup = progress.numNodesDone;
         
@@ -116,7 +116,7 @@ public class DFSBatchSolver extends Solver {
                     
                     if (nextBatchNodes.size() == Main.DFS_BATCH_SIZE) {
                         Batch nextBatch = new Batch(bestAnsLen, nextBatchNodes);
-                        processQueue.add(nextBatch);
+                        processorQueue.add(nextBatch);
                         orderingQueue.add(nextBatch);
                         nextBatchNodes = new ArrayList<Node>();
                     }
@@ -129,14 +129,14 @@ public class DFSBatchSolver extends Solver {
                 numNodesSinceCleanup++;
                 if (numNodesSinceCleanup >= 1000000) {
                     long totalCached = seenCache.cleanup(maxCacheSize.get());
-                    progress.printProgress(node, totalCached, processQueue.size(), orderingQueue.size());
+                    progress.printProgress(node, totalCached, processorQueue.size(), orderingQueue.size());
                     numNodesSinceCleanup = 0;
                 }
             }
             
             if (!nextBatchNodes.isEmpty()) {
                 Batch nextBatch = new Batch(bestAnsLen, nextBatchNodes);
-                processQueue.add(nextBatch);
+                processorQueue.add(nextBatch);
                 orderingQueue.add(nextBatch);
             }
         }

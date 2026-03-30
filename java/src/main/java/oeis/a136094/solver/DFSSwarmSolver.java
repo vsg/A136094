@@ -132,22 +132,22 @@ public class DFSSwarmSolver extends DFSBatchSolver {
         try {
             semaphore.acquire();
             
-            BlockingQueue<Batch> processQueue = new PriorityBlockingQueue<>(100, BATCH_PREFIX_COMPARATOR);
+            BlockingQueue<Batch> processorQueue = new PriorityBlockingQueue<>(100, BATCH_PREFIX_COMPARATOR);
             PriorityQueue<Batch> orderingQueue = new PriorityQueue<>(BATCH_PREFIX_COMPARATOR);
             
-            BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processQueue, numThreadsPerGroup);
+            BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processorQueue, numThreadsPerGroup);
             new Thread(batchProcessor).start();
             
             for (ArrayDeque<Node> nodes : levelTodo) {
                 if (nodes.isEmpty()) continue;
                 Batch batch = new Batch(bestAnsLen, new ArrayList<>(nodes));
-                processQueue.add(batch);
+                processorQueue.add(batch);
                 orderingQueue.add(batch);
             }
             
             Supplier<Long> maxCacheSize = () -> Main.DFS_BATCH_MAX_CACHE / Math.min(numSolvers.get(), Main.DFS_SWARM_MAX_GROUPS);
             
-            String answer = super.solveDFSBatch(processQueue, orderingQueue, bestAnsLen, seenCache, maxCacheSize, progress);
+            String answer = super.solveDFSBatch(processorQueue, orderingQueue, bestAnsLen, seenCache, maxCacheSize, progress);
             
             batchProcessor.shutdown();
             
