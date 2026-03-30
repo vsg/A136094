@@ -166,7 +166,7 @@ public class PartialsLookup {
                 Bundle bundle2 = sortedBundles[index2];
                 int numDigits2 = bundle2.numDigits();
 
-                if (bundle2.toSortable() >= bundle1.toSortable()) throw new RuntimeException();
+                if (bundle2.toSortKey() >= bundle1.toSortKey()) throw new RuntimeException();
                 if (numDigits2 < numDigits1-2) break;
                 if (numDigits2 > numDigits1) throw new RuntimeException();
                 

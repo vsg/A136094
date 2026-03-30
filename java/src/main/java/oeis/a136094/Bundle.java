@@ -107,7 +107,7 @@ public class Bundle {
         return packedToBundle[packed];
     }
     
-    public int toSortable() {
+    public int toSortKey() {
         return (shape << 18) | bundle;
     }
 
@@ -235,7 +235,7 @@ public class Bundle {
         int[] tmp = new int[len];
     
         for (int i = 0; i < len; i++) {
-            tmp[i] = -bundles[i].toSortable(); // sort in descending order, bigger bundles go first
+            tmp[i] = -bundles[i].toSortKey(); // sort in descending order, bigger bundles go first
         }
     
         Arrays.sort(tmp, 0, len);

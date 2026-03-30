@@ -307,7 +307,7 @@ public class PartialsInit {
                         int digits4 = bundle4.digits();
                         if ((digits4 & ~validDigits) != 0) continue;
                         
-                        if (bundle4.toSortable() >= bundle3.toSortable()) continue;
+                        if (bundle4.toSortKey() >= bundle3.toSortKey()) continue;
                         
                         if ((digits4 == digits1 || digits4 == digits2 || digits4 == digits3)) continue;
                         
@@ -324,7 +324,7 @@ public class PartialsInit {
                             int digits5 = bundle5.digits();
                             if ((digits5 & ~validDigits) != 0) continue;
                             
-                            if (bundle5.toSortable() >= bundle4.toSortable()) continue;
+                            if (bundle5.toSortKey() >= bundle4.toSortKey()) continue;
                             
                             if ((digits5 == digits1 || digits5 == digits2 || digits5 == digits3 || digits5 == digits4)) continue;
                             
