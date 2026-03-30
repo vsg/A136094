@@ -85,9 +85,17 @@ public class ParallelUtils {
         }
     }
 
-    public static <T> void processInBatches(Consumer<Consumer<T>> input, int batchSize, Consumer<ArrayList<T>> batchCallback) {
+    public static <T> void processInBatches(Collection<T> input, int batchSize, Consumer<ArrayList<T>> batchCallback) {
+        processInBatches((consumer) -> {
+            for (T item : input) {
+                consumer.accept(item);
+            }
+        }, batchSize, batchCallback);
+    }
+    
+    public static <T> void processInBatches(Generator<T> input, int batchSize, Consumer<ArrayList<T>> batchCallback) {
         ArrayList<T> batch = new ArrayList<>();
-        input.accept((item) -> {
+        input.generate((item) -> {
             batch.add(item);
             if (batch.size() == batchSize) {
                 batchCallback.accept(batch);

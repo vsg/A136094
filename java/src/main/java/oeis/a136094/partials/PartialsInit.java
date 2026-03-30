@@ -36,6 +36,7 @@ import oeis.a136094.key.Key;
 import oeis.a136094.key.KeyBuilder;
 import oeis.a136094.solver.DFSSwarmSolver;
 import oeis.a136094.solver.Solver;
+import oeis.a136094.util.Generator;
 import oeis.a136094.util.MemoryEfficientHashSet;
 
 public class PartialsInit {
@@ -455,10 +456,10 @@ public class PartialsInit {
         
         String alg = Main.PRECALC_ALG;
         
-        Consumer<Consumer<Problem>> inputGenerator = (consumer) -> {
+        Generator<Problem> inputGenerator = (sink) -> {
             KeyBuilder.generateKeysInParallel(uniqueBundles, (bundles, key) -> {
                 if (!checkpoint.containsKey(key) && !alg.equals("none")) {
-                    consumer.accept(new Problem(bundles, key));
+                    sink.accept(new Problem(bundles, key));
                 } else {
                     shapePrecalc.decrementAndGet();
                     currPrecalc.incrementAndGet();

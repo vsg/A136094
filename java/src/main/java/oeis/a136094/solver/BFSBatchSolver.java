@@ -110,11 +110,7 @@ public class BFSBatchSolver extends Solver {
 
     private List<Batch> makeBatches(int bestAnsLen, List<Node> nodes) {
         List<Batch> batches = new ArrayList<>();
-        processInBatches((consumer) -> {
-            for (Node node : nodes) {
-                consumer.accept(node);
-            }
-        }, 10000, (ArrayList<Node> batchNodes) -> {
+        processInBatches(nodes, 10000, (ArrayList<Node> batchNodes) -> {
             batches.add(new Batch(bestAnsLen, batchNodes));
         });
         return batches;

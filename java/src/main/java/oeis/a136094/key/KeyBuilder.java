@@ -12,10 +12,10 @@ import static oeis.a136094.util.ParallelUtils.processInParallel;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import oeis.a136094.Bundle;
 import oeis.a136094.Main;
+import oeis.a136094.util.Generator;
 
 public class KeyBuilder {
         
@@ -157,8 +157,15 @@ public class KeyBuilder {
         }
     }
 
-    public static void generateKeysInParallel(Consumer<Consumer<Bundle[]>> inputCallback, 
-            BiConsumer<Bundle[], Key> resultCallback) {
+    public static void generateKeysInParallel(Collection<Bundle[]> input, BiConsumer<Bundle[], Key> resultCallback) {
+        KeyBuilder.generateKeysInParallel((consumer) -> {
+            for (Bundle[] bundles : input) {
+                consumer.accept(bundles);
+            }
+        }, resultCallback);
+    }
+
+    public static void generateKeysInParallel(Generator<Bundle[]> input, BiConsumer<Bundle[], Key> resultCallback) {
         class Item {
             Bundle[] bundles;
             Key key;
@@ -168,11 +175,9 @@ public class KeyBuilder {
                 this.key = key;
             }
         }
-        Consumer<Consumer<Item>> inputAdapter = (consumer) -> {
-            inputCallback.accept((bundles) -> {
-                consumer.accept(new Item(bundles, null));
-            });
-        };
+        
+        Generator<Item> inputAdapter = input.transforming((bundles) -> new Item(bundles, null));
+
         processInBatches(inputAdapter, 100000, (batch) -> {
             processInParallel(batch, Main.NUM_WORKER_THREADS, () -> {
                 KeyBuilder keyBuilder = new KeyBuilder();
@@ -187,14 +192,6 @@ public class KeyBuilder {
                 resultCallback.accept(item.bundles, item.key);
             }
         });
-    }
-
-    public static void generateKeysInParallel(Collection<Bundle[]> input, BiConsumer<Bundle[], Key> resultCallback) {
-        KeyBuilder.generateKeysInParallel((consumer) -> {
-            for (Bundle[] bundles : input) {
-                consumer.accept(bundles);
-            }
-        }, resultCallback);
     }
 
 }
