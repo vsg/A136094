@@ -33,45 +33,34 @@ class MainIT {
     @Nested
     class FastTests {
         
-        private static Partials partials;
-        
-        @BeforeAll
-        static void init() {
-            Main.MAX_N = 6;
-            Main.MIN_PIECE_CHECK_SIZE = 4;
-            Main.NO_SAVE_FILES = true;
-            
-            partials = PartialsInit.precalc();
-        }
-        
         @ParameterizedTest
         @ValueSource(ints = { 1, 2, 3, 4, 5, 6 })
         void testBfs(int n) {
-            assertThat(solveProblem(n, "bfs", partials)).isEqualTo(EXPECTED_ANSWERS[n]);
+            assertThat(solveProblem(n, "bfs")).isEqualTo(EXPECTED_ANSWERS[n]);
         }
 
         @ParameterizedTest
         @ValueSource(ints = { 1, 2, 3, 4, 5, 6 })
         void testBfsBatch(int n) {
-            assertThat(solveProblem(n, "bfs-batch", partials)).isEqualTo(EXPECTED_ANSWERS[n]);
+            assertThat(solveProblem(n, "bfs-batch")).isEqualTo(EXPECTED_ANSWERS[n]);
         }
         
         @ParameterizedTest
         @ValueSource(ints = { 1, 2, 3, 4, 5, 6 })
         void testDfs(int n) {
-            assertThat(solveProblem(n, "dfs", partials)).isEqualTo(EXPECTED_ANSWERS[n]);
+            assertThat(solveProblem(n, "dfs")).isEqualTo(EXPECTED_ANSWERS[n]);
         }
         
         @ParameterizedTest
         @ValueSource(ints = { 1, 2, 3, 4, 5, 6 })
         void testDfsBatch(int n) {
-            assertThat(solveProblem(n, "dfs-batch", partials)).isEqualTo(EXPECTED_ANSWERS[n]);
+            assertThat(solveProblem(n, "dfs-batch")).isEqualTo(EXPECTED_ANSWERS[n]);
         }
         
         @ParameterizedTest
         @ValueSource(ints = { 1, 2, 3, 4, 5, 6 })
         void testDfsSwarm(int n) {
-            assertThat(solveProblem(n, "dfs-swarm", partials)).isEqualTo(EXPECTED_ANSWERS[n]);
+            assertThat(solveProblem(n, "dfs-swarm")).isEqualTo(EXPECTED_ANSWERS[n]);
         }
         
     }
@@ -84,11 +73,7 @@ class MainIT {
         
         @BeforeAll
         static void init() {
-            Main.MAX_N = 7;
-            Main.MIN_PIECE_CHECK_SIZE = 5;
-            Main.NO_SAVE_FILES = true;
-            
-            partials = PartialsInit.precalc();
+            partials = precalcPartials(7);
         }
         
         @ParameterizedTest
@@ -123,6 +108,20 @@ class MainIT {
         
     }
     
+    private static Partials precalcPartials(int n) {
+        Main.MAX_N = n;
+        Main.MIN_PIECE_CHECK_SIZE = Math.max(n-2, -1);
+        Main.NO_SAVE_FILES = true;
+
+        return PartialsInit.precalc();
+    }
+    
+    private static String solveProblem(int n, String alg) {
+        Partials partials = precalcPartials(n);
+        
+        return solveProblem(n, alg, partials);
+    }
+
     private static String solveProblem(int n, String alg, Partials partials) {
         Solver solver = Solver.createSolver(alg, partials);
         int digits = (1 << n) - 1;
