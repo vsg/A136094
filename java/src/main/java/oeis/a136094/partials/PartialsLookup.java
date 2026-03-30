@@ -92,7 +92,7 @@ public class PartialsLookup {
 
             if (partials.getMaxKnownNextSolutionLength123By1(shape1) < bestAnsLen) continue;
 
-            Bundle.makeBundleSwap1234(bundle1, swap1);
+            bundle1.makeBundleSwap1234(swap1);
             
             int numSwapped = 0;
 

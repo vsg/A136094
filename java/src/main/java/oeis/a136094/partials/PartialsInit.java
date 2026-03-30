@@ -509,7 +509,7 @@ public class PartialsInit {
 
             int shape1 = bundle1.shape();
 
-            Bundle.makeBundleSwap1234(bundle1, swap1);
+            bundle1.makeBundleSwap1234(swap1);
             
             Bundle bundle22 = (bundle2 != null) ? bundle2.swapBundleDigits(swap1) : null;
             Bundle bundle33 = (bundle3 != null) ? bundle3.swapBundleDigits(swap1) : null;

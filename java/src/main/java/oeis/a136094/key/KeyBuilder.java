@@ -36,7 +36,7 @@ public class KeyBuilder {
             digits[d] = d;
         }
         
-        int digitsMask = digits(sortedBundles, len);
+        int digitsMask = digits(sortedBundles);
         int numDigits = bitCount(digitsMask);
 
         calcStructHash(sortedBundles, len, hash);
