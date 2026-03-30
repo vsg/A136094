@@ -6,16 +6,18 @@ package oeis.a136094.solver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 class Batch {
     
     int bestAnsLen;
     List<Node> nodes;
-    volatile boolean processed;
+    CompletableFuture<Void> processed;
     
     Batch(int bestAnsLen, List<Node> nodes) {
         this.bestAnsLen = bestAnsLen;
         this.nodes = new ArrayList<>(nodes);
+        this.processed = new CompletableFuture<>();
     }
     
     public String minPrefix() {
@@ -23,9 +25,7 @@ class Batch {
     }
     
     public void ensureProcessed() {
-        while (!processed) {
-            Thread.yield();//XXX
-        }
+        processed.join();
     }
     
 }

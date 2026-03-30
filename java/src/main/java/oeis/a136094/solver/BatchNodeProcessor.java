@@ -52,7 +52,7 @@ public class BatchNodeProcessor implements Runnable {
                 processor.process(node, batch.bestAnsLen, seenCache);
             };
         });
-        batch.processed = true;
+        batch.processed.complete(null);
     }
     
     public void shutdown() {
