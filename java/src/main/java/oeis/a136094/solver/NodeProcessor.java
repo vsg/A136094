@@ -13,20 +13,20 @@ import oeis.a136094.move.MoveBuilder;
 import oeis.a136094.partials.Partials;
 import oeis.a136094.partials.PartialsLookup;
 
-public class StateProcessor {
+public class NodeProcessor {
     
     private final KeyBuilder keyBuilder = new KeyBuilder();
     private final MoveBuilder moveBuilder = new MoveBuilder();
     private final PartialsLookup partialsLookup;
 
-    public StateProcessor(Partials partials) {
+    public NodeProcessor(Partials partials) {
         this.partialsLookup = new PartialsLookup(partials);
     }
 
-    public void process(State state, int bestAnsLen, SeenCache seenCache) {
-        String prefix = state.prefix;
-        Bundle[] sortedBundles = state.sortedBundles;
-        List<State> nextStates = state.nextStates;
+    public void process(Node node, int bestAnsLen, SeenCache seenCache) {
+        String prefix = node.prefix;
+        Bundle[] sortedBundles = node.sortedBundles;
+        List<Node> nextNodes = node.nextNodes;
         
         int moves = partialsLookup.canHaveAnswer(prefix, sortedBundles, bestAnsLen);
         if (moves == 0) return;
@@ -41,8 +41,8 @@ public class StateProcessor {
             
             if (!seenCache.add(nextLevel, nextKey)) continue;
             
-            State nextState = new State(nextPrefix, nextBundles, nextKey);
-            nextStates.add(nextState);
+            Node nextNode = new Node(nextPrefix, nextBundles, nextKey);
+            nextNodes.add(nextNode);
         }
     }
     

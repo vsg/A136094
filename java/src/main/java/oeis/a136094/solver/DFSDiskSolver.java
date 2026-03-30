@@ -106,17 +106,17 @@ public class DFSDiskSolver extends Solver {
             try {
                 processInBatches((consumer) -> {
                     readLinesFromFile(prefixesFile, prefix -> {
-                        consumer.accept(new State(prefix, null, null));
+                        consumer.accept(new Node(prefix, null, null));
                     });
-                }, Main.DFS_DISK_BATCH_SIZE, (ArrayList<State> states) -> {
-                    processInParallel(states, Main.NUM_WORKER_THREADS, () -> {
+                }, Main.DFS_DISK_BATCH_SIZE, (ArrayList<Node> nodes) -> {
+                    processInParallel(nodes, Main.NUM_WORKER_THREADS, () -> {
                         final MoveBuilder moveBuilder = new MoveBuilder();
-                        return (state) -> {
-                            String prefix = state.prefix;
-                            state.sortedBundles = moveBuilder.makeMovesAndSort(bundles0, prefix);
+                        return (node) -> {
+                            String prefix = node.prefix;
+                            node.sortedBundles = moveBuilder.makeMovesAndSort(bundles0, prefix);
                         };
                     });
-                    batchCallback.accept(new Batch(bestAnsLen, states));
+                    batchCallback.accept(new Batch(bestAnsLen, nodes));
                 });
                 batchCallback.accept(new Batch(-1, Collections.emptyList())); // signal end of input
             } catch (Throwable t) {
@@ -260,7 +260,7 @@ public class DFSDiskSolver extends Solver {
 
         Progress progress = new Progress(bundles0, bestAnsLen, level, minPrefix);
         
-        AtomicLong numInStates = new AtomicLong();
+        AtomicLong numInNodes = new AtomicLong();
         AtomicLong numOutPrefixes = new AtomicLong();
         
         BlockingQueue<Batch> processQueue = new LinkedBlockingQueue<>();
@@ -277,10 +277,10 @@ public class DFSDiskSolver extends Solver {
         });
         new Thread(blockReader).start();
         
-        BatchStateProcessor batchProcessor = new BatchStateProcessor(partials, processQueue);
+        BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processQueue);
         new Thread(batchProcessor).start();
 
-        String answer = solveBlock(orderingQueue, bestAnsLen, blockWriter, numInStates, numOutPrefixes, progress);
+        String answer = solveBlock(orderingQueue, bestAnsLen, blockWriter, numInNodes, numOutPrefixes, progress);
         
         batchProcessor.shutdown();
         
@@ -310,9 +310,9 @@ public class DFSDiskSolver extends Solver {
     }
 
     private String solveBlock(BlockingQueue<Batch> queue, int bestAnsLen, MultiBlockWriter blockWriter,
-            AtomicLong numInStates, AtomicLong numOutPrefixes, Progress progress) {
+            AtomicLong numInNodes, AtomicLong numOutPrefixes, Progress progress) {
         String answer = null;
-        Set<Key> seenStates = new MemoryEfficientHashSet<>();
+        Set<Key> seenNodes = new MemoryEfficientHashSet<>();
         while (true) {
             Batch batch;
             try {
@@ -320,52 +320,52 @@ public class DFSDiskSolver extends Solver {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            if (batch.states.isEmpty()) break;
+            if (batch.nodes.isEmpty()) break;
             
             batch.ensureProcessed();
             
             if (answer != null) continue; // make sure block reader completes
             
-            answer = processBatch(batch, blockWriter, numInStates, numOutPrefixes, seenStates, progress);
+            answer = processBatch(batch, blockWriter, numInNodes, numOutPrefixes, seenNodes, progress);
         }
         return answer;
     }
 
-    private String processBatch(Batch batch, MultiBlockWriter blockWriter, AtomicLong numInStates,
-            AtomicLong numOutPrefixes, Set<Key> seenStates, Progress progress) {
-        for (State state : batch.states) {
-            for (State nextState : state.nextStates) {
-                String prefix = nextState.prefix;
-                Bundle[] bundles = nextState.sortedBundles;
-                Key key = nextState.key;
+    private String processBatch(Batch batch, MultiBlockWriter blockWriter, AtomicLong numInNodes,
+            AtomicLong numOutPrefixes, Set<Key> seenNodes, Progress progress) {
+        for (Node node : batch.nodes) {
+            for (Node nextNode : node.nextNodes) {
+                String prefix = nextNode.prefix;
+                Bundle[] bundles = nextNode.sortedBundles;
+                Key key = nextNode.key;
 
                 if (bundles.length == 0) {
                     return prefix;
                 }
                 
-                if (!seenStates.add(key)) continue;
+                if (!seenNodes.add(key)) continue;
                 
                 blockWriter.writePrefix(prefix);
                 numOutPrefixes.incrementAndGet();
 
-                if (seenStates.size() == Main.DFS_DISK_SEEN_SIZE) {
+                if (seenNodes.size() == Main.DFS_DISK_SEEN_SIZE) {
                     progress.print("trim");
 
-                    trimSeenStates(seenStates);
+                    trimSeenNodes(seenNodes);
                 }
             }
             
-            long numIn = numInStates.incrementAndGet();
+            long numIn = numInNodes.incrementAndGet();
             if (numIn % 1000000 == 0) {
                 long numOut = numOutPrefixes.get();
-                progress.print(numIn + " -> " + numOut + " " + Bundle.bundlesToString(state.sortedBundles));
+                progress.print(numIn + " -> " + numOut + " " + Bundle.bundlesToString(node.sortedBundles));
             }
         }
         return null;
     }
 
-    private void trimSeenStates(Set<Key> seenStates) {
-        Iterator<Key> iterator = seenStates.iterator();
+    private void trimSeenNodes(Set<Key> seenNodes) {
+        Iterator<Key> iterator = seenNodes.iterator();
         int count = 0;
         while (iterator.hasNext()) {
             iterator.next();

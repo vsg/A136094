@@ -10,16 +10,16 @@ import java.util.List;
 class Batch {
     
     int bestAnsLen;
-    List<State> states;
+    List<Node> nodes;
     volatile boolean processed;
     
-    Batch(int bestAnsLen, List<State> states) {
+    Batch(int bestAnsLen, List<Node> nodes) {
         this.bestAnsLen = bestAnsLen;
-        this.states = new ArrayList<>(states);
+        this.nodes = new ArrayList<>(nodes);
     }
     
     public String minPrefix() {
-        return !states.isEmpty() ? states.get(0).prefix : null;
+        return !nodes.isEmpty() ? nodes.get(0).prefix : null;
     }
     
     public void ensureProcessed() {

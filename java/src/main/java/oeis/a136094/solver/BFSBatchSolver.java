@@ -35,14 +35,14 @@ public class BFSBatchSolver extends Solver {
             this.bestAnsLen = bestAnsLen;
         }
 
-        public void printProgress(int level, int numStates, State someState) {
+        public void printProgress(int level, int numNodes, Node someNode) {
             if (Main.PRINT_PROGRESS) {
                 long now = System.currentTimeMillis();
                 long totalTime = now - begin;
                 long plusTime = now - lastProgressTime;
                 System.out.println(Utils.formatLog("%s %d %d %d [%d ms, +%d ms]; %s", 
-                        Bundle.bundlesToString(bundles0), bestAnsLen, level, numStates, totalTime, plusTime, 
-                        Bundle.bundlesToString(someState.sortedBundles)));
+                        Bundle.bundlesToString(bundles0), bestAnsLen, level, numNodes, totalTime, plusTime, 
+                        Bundle.bundlesToString(someNode.sortedBundles)));
                 lastProgressTime = now;
             }
         }
@@ -59,40 +59,40 @@ public class BFSBatchSolver extends Solver {
         
         BlockingQueue<Batch> processQueue = new LinkedBlockingQueue<>();
         
-        BatchStateProcessor batchProcessor = new BatchStateProcessor(partials, processQueue);
+        BatchNodeProcessor batchProcessor = new BatchNodeProcessor(partials, processQueue);
         new Thread(batchProcessor).start();
         
         Bundle[] sortedBundles0 = Bundle.sortBundles(bundles0);
-        State state0 = new State("", sortedBundles0, null);
+        Node node0 = new Node("", sortedBundles0, null);
         
-        String answer = solveBFS(state0, bestAnsLen, processQueue, progress);
+        String answer = solveBFS(node0, bestAnsLen, processQueue, progress);
         
         batchProcessor.shutdown();
         
         return answer;
     }
 
-    private String solveBFS(State state0, int bestAnsLen, Queue<Batch> processQueue, Progress progress) {
-        List<State> states = Arrays.asList(state0);
+    private String solveBFS(Node node0, int bestAnsLen, Queue<Batch> processQueue, Progress progress) {
+        List<Node> nodes = Arrays.asList(node0);
         for (int level = 0; level <= bestAnsLen; level++) {
-            if (states.isEmpty()) break;
-            progress.printProgress(level, states.size(), states.get(states.size()/2));
+            if (nodes.isEmpty()) break;
+            progress.printProgress(level, nodes.size(), nodes.get(nodes.size()/2));
 
-            List<Batch> batches = makeBatches(bestAnsLen, states);
+            List<Batch> batches = makeBatches(bestAnsLen, nodes);
             
             processQueue.addAll(batches);
             
             Set<Key> seen = new MemoryEfficientHashSet<>();
             
-            List<State> nextStates = new ArrayList<>();
+            List<Node> nextNodes = new ArrayList<>();
             for (Batch batch : batches) {
                 batch.ensureProcessed();
                 
-                for (State state : batch.states) {
-                    for (State nextState : state.nextStates) {
-                        String prefix = nextState.prefix;
-                        Bundle[] sortedBundles = nextState.sortedBundles;
-                        Key key = nextState.key;
+                for (Node node : batch.nodes) {
+                    for (Node nextNode : node.nextNodes) {
+                        String prefix = nextNode.prefix;
+                        Bundle[] sortedBundles = nextNode.sortedBundles;
+                        Key key = nextNode.key;
                         
                         if (sortedBundles.length == 0) {
                             return prefix;
@@ -100,23 +100,23 @@ public class BFSBatchSolver extends Solver {
                         
                         if (!seen.add(key)) continue;
                         
-                        nextStates.add(nextState);
+                        nextNodes.add(nextNode);
                     }
                 }
             }
-            states = nextStates;
+            nodes = nextNodes;
         }
         return null;
     }
 
-    private List<Batch> makeBatches(int bestAnsLen, List<State> states) {
+    private List<Batch> makeBatches(int bestAnsLen, List<Node> nodes) {
         List<Batch> batches = new ArrayList<>();
         processInBatches((consumer) -> {
-            for (State state : states) {
-                consumer.accept(state);
+            for (Node node : nodes) {
+                consumer.accept(node);
             }
-        }, 10000, (ArrayList<State> batchStates) -> {
-            batches.add(new Batch(bestAnsLen, batchStates));
+        }, 10000, (ArrayList<Node> batchNodes) -> {
+            batches.add(new Batch(bestAnsLen, batchNodes));
         });
         return batches;
     }

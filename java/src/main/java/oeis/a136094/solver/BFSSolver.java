@@ -27,14 +27,14 @@ public class BFSSolver extends Solver {
             this.bestAnsLen = bestAnsLen;
         }
         
-        public void printProgress(int level, int numStates, State someState) {
+        public void printProgress(int level, int numNodes, Node someNode) {
             if (Main.PRINT_PROGRESS) {
                 long now = System.currentTimeMillis();
                 long totalTime = now - begin;
                 long plusTime = now - lastProgressTime;
                 System.out.println(Utils.formatLog("%s %d %d %d [%d ms, +%d ms]; %s", 
-                        Bundle.bundlesToString(bundles0), bestAnsLen, level, numStates, totalTime, plusTime, 
-                        Bundle.bundlesToString(someState.sortedBundles)));
+                        Bundle.bundlesToString(bundles0), bestAnsLen, level, numNodes, totalTime, plusTime, 
+                        Bundle.bundlesToString(someNode.sortedBundles)));
                 lastProgressTime = now;
             }
         }
@@ -49,30 +49,30 @@ public class BFSSolver extends Solver {
     public String solve(Bundle[] bundles0, int bestAnsLen) {
         Progress progress = new Progress(bundles0, bestAnsLen);
         
-        StateProcessor processor = new StateProcessor(partials);
+        NodeProcessor processor = new NodeProcessor(partials);
         
         Bundle[] sortedBundles0 = Bundle.sortBundles(bundles0);
-        State state0 = new State("", sortedBundles0, null);
+        Node node0 = new Node("", sortedBundles0, null);
         
-        List<State> states = Arrays.asList(state0);
+        List<Node> nodes = Arrays.asList(node0);
         for (int level = 0; level <= bestAnsLen; level++) {
-            if (states.isEmpty()) break;
-            progress.printProgress(level, states.size(), states.get(states.size()/2));
+            if (nodes.isEmpty()) break;
+            progress.printProgress(level, nodes.size(), nodes.get(nodes.size()/2));
             
             SeenCache seenCache = new SeenCache();
             
-            List<State> nextStates = new ArrayList<>();
-            for (State state : states) {
-                String prefix = state.prefix;
-                Bundle[] sortedBundles = state.sortedBundles;
+            List<Node> nextNodes = new ArrayList<>();
+            for (Node node : nodes) {
+                String prefix = node.prefix;
+                Bundle[] sortedBundles = node.sortedBundles;
 
                 if (sortedBundles.length == 0) return prefix;
                 
-                processor.process(state, bestAnsLen, seenCache);
+                processor.process(node, bestAnsLen, seenCache);
                 
-                nextStates.addAll(state.nextStates);
+                nextNodes.addAll(node.nextNodes);
             }
-            states = nextStates;
+            nodes = nextNodes;
         }
         return null;
     }

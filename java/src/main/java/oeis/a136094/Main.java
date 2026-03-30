@@ -33,7 +33,7 @@ public class Main {
     public static boolean DFS_SWARM_BATCH_MODE = false;
 
     public static int DFS_DISK_BLOCK_SIZE = 50_000_000; // N prefixes in, N*5 prefixes out
-    public static int DFS_DISK_BATCH_SIZE = 10_000_000; // N states in, N*5 states out (up to 1kb each)
+    public static int DFS_DISK_BATCH_SIZE = 10_000_000; // N nodes in, N*5 nodes out (up to 1kb each)
     public static int DFS_DISK_SEEN_SIZE = 50_000_000; // keys (up to 1kb each)
     
     public static boolean PRINT_PROGRESS = true;

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import oeis.a136094.Main;
 import oeis.a136094.partials.Partials;
 
-public class BatchStateProcessor implements Runnable {
+public class BatchNodeProcessor implements Runnable {
 
     private static final Batch TERMINATOR = new Batch(-1, Collections.emptyList());
     
@@ -21,11 +21,11 @@ public class BatchStateProcessor implements Runnable {
     private final BlockingQueue<Batch> queue;
     private final AtomicInteger numThreads;
 
-    public BatchStateProcessor(Partials partials, BlockingQueue<Batch> queue) {
+    public BatchNodeProcessor(Partials partials, BlockingQueue<Batch> queue) {
         this(partials, queue, new AtomicInteger(Main.NUM_WORKER_THREADS));
     }
     
-    public BatchStateProcessor(Partials partials, BlockingQueue<Batch> queue, AtomicInteger numThreads) {
+    public BatchNodeProcessor(Partials partials, BlockingQueue<Batch> queue, AtomicInteger numThreads) {
         this.partials = partials;
         this.queue = queue;
         this.numThreads = numThreads;
@@ -45,11 +45,11 @@ public class BatchStateProcessor implements Runnable {
     }
 
     private void processBatch(Batch batch, int numThreads) {
-        processInParallel(batch.states, numThreads, () -> {
-            StateProcessor processor = new StateProcessor(partials);
+        processInParallel(batch.nodes, numThreads, () -> {
+            NodeProcessor processor = new NodeProcessor(partials);
             SeenCache seenCache = new SeenCache();
-            return (state) -> {
-                processor.process(state, batch.bestAnsLen, seenCache);
+            return (node) -> {
+                processor.process(node, batch.bestAnsLen, seenCache);
             };
         });
         batch.processed = true;
