@@ -31,13 +31,14 @@ public class Bundle {
 
     static {
         initBundles();
+        initByPackedLookup();
+        initByShapeLookup();
+        initPieces();
+        initToString();
     }
 
     private static void initBundles() {
-        Bundle[][] bundlesByShape = new Bundle[256][6000];
-        int[] numBundlesByShape = new int[256];
-        
-        int numBundles = 0;
+        int index = 0;
         
         for (int numDigits = 1; numDigits <= 9; numDigits++) {
             for (int digits = 1; digits <= MASK_9; digits++) {
@@ -48,34 +49,43 @@ public class Bundle {
                         if (bitCount(heads) != numHeads) continue;
                         
                         if ((heads & ~digits) != 0) continue;
-
-                        int bundleIndex = numBundles++;
-                        String bundleStr = digitsMaskToString(heads) + "/" + digitsMaskToString(digits);
                         
-                        Bundle bundle = new Bundle(heads, digits, bundleIndex);
-                        int shape = bundle.shape();
-                        int packed = bundle.pack();
-                        
-                        stringToBundle.put(bundleStr, bundle);
-                        indexToString[bundleIndex] = bundleStr;
-                        
-                        packedToBundle[packed] = bundle;
-                        
-                        int numShapeBundles = numBundlesByShape[shape]++;
-                        bundlesByShape[shape][numShapeBundles] = bundle;
-                        
-                        MAX_BUNDLE_INDEX_OF_SHAPE[shape] = bundleIndex;
-                        
+                        Bundle bundle = new Bundle(heads, digits, index++);
                         ALL_BUNDLES.add(bundle);
                     }
                 }
             }
         }
+    }
+
+    private static void initByPackedLookup() {
+        for (Bundle bundle : ALL_BUNDLES) {
+            int packed = bundle.pack();
+            
+            packedToBundle[packed] = bundle;
+        }        
+    }
+
+    private static void initByShapeLookup() {
+        Bundle[][] bundlesByShape = new Bundle[256][6000];
+        int[] numBundlesByShape = new int[256];
+        
+        for (Bundle bundle : ALL_BUNDLES) {
+            int index = bundle.index();
+            int shape = bundle.shape();
+            
+            int numShapeBundles = numBundlesByShape[shape]++;
+            bundlesByShape[shape][numShapeBundles] = bundle;
+            
+            MAX_BUNDLE_INDEX_OF_SHAPE[shape] = index;
+        }
 
         for (int shape = 0; shape < 256; shape++) {
             BUNDLES_OF_SHAPE[shape] = Arrays.copyOf(bundlesByShape[shape], numBundlesByShape[shape]);
         }
-        
+    }
+    
+    private static void initPieces() {
         for (Bundle bundle : ALL_BUNDLES) {
             int heads = bundle.heads();
             int digits = bundle.digits();
@@ -88,6 +98,19 @@ public class Bundle {
         }
     }
 
+    private static void initToString() {
+        for (Bundle bundle : ALL_BUNDLES) {
+            int heads = bundle.heads();
+            int digits = bundle.digits();
+            int index = bundle.index();
+            
+            String bundleStr = digitsMaskToString(heads) + "/" + digitsMaskToString(digits);
+            
+            stringToBundle.put(bundleStr, bundle);
+            indexToString[index] = bundleStr;
+        }
+    }
+    
     private final int heads;
     private final int digits;
     private final int numHeads;
