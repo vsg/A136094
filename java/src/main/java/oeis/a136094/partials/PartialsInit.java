@@ -548,12 +548,17 @@ public class PartialsInit {
             Bundle bundle22 = (bundle2 != null) ? bundle2.swapBundleDigits(swap1) : null;
             Bundle bundle33 = (bundle3 != null) ? bundle3.swapBundleDigits(swap1) : null;
 
-            applySolution123(partials, bundles.length, shape1, bundle22, bundle33, ansLen);
-
-            if (bundles.length > 2 && bundle22.shape() == bundle33.shape()) {
-                applySolution123(partials, bundles.length, shape1, bundle33, bundle22, ansLen);
-            }
+            applyPermutationSolutions123(partials, bundles.length, shape1, bundle22, bundle33, ansLen);
         });
+    }
+
+    private static void applyPermutationSolutions123(Partials partials, int numBundles, 
+            int shape1, Bundle bundle22, Bundle bundle33, Integer ansLen) {
+        applySolution123(partials, numBundles, shape1, bundle22, bundle33, ansLen);
+
+        if (numBundles > 2 && bundle22.shape() == bundle33.shape()) {
+            applySolution123(partials, numBundles, shape1, bundle33, bundle22, ansLen);
+        }
     }
 
     private static void applySolution123(Partials partials, int numBundles, 
@@ -595,22 +600,27 @@ public class PartialsInit {
             Bundle bundle44 = (bundle4 != null) ? bundle4.swapBundleDigits(k2swap) : null;
             Bundle bundle55 = (bundle5 != null) ? bundle5.swapBundleDigits(k2swap) : null;
             
-            applySolution45(partials, bundles.length, shape1, k2, bundle33, bundle44, bundle55, ansLen);
-
-            if (bundle33.shape() == bundle44.shape()) {
-                applySolution45(partials, bundles.length, shape1, k2, bundle44, bundle33, bundle55, ansLen);
-                if (bundles.length > 4 && bundle44.shape() == bundle55.shape()) {
-                    applySolution45(partials, bundles.length, shape1, k2, bundle33, bundle55, bundle44, ansLen);
-                    applySolution45(partials, bundles.length, shape1, k2, bundle55, bundle33, bundle44, ansLen);
-                    applySolution45(partials, bundles.length, shape1, k2, bundle44, bundle55, bundle33, ansLen);
-                    applySolution45(partials, bundles.length, shape1, k2, bundle55, bundle44, bundle33, ansLen);
-                }
-            } else {
-                if (bundles.length > 4 && bundle44.shape() == bundle55.shape()) {
-                    applySolution45(partials, bundles.length, shape1, k2, bundle33, bundle55, bundle44, ansLen);
-                }
-            }
+            applyPermutationSolutions45(partials, bundles.length, shape1, k2, bundle33, bundle44, bundle55, ansLen);
         });
+    }
+
+    private static void applyPermutationSolutions45(Partials partials, int numBundles, 
+            int shape1, int k2, Bundle bundle33, Bundle bundle44, Bundle bundle55, Integer ansLen) {
+        applySolution45(partials, numBundles, shape1, k2, bundle33, bundle44, bundle55, ansLen);
+
+        if (bundle33.shape() == bundle44.shape()) {
+            applySolution45(partials, numBundles, shape1, k2, bundle44, bundle33, bundle55, ansLen);
+            if (numBundles > 4 && bundle44.shape() == bundle55.shape()) {
+                applySolution45(partials, numBundles, shape1, k2, bundle33, bundle55, bundle44, ansLen);
+                applySolution45(partials, numBundles, shape1, k2, bundle55, bundle33, bundle44, ansLen);
+                applySolution45(partials, numBundles, shape1, k2, bundle44, bundle55, bundle33, ansLen);
+                applySolution45(partials, numBundles, shape1, k2, bundle55, bundle44, bundle33, ansLen);
+            }
+        } else {
+            if (numBundles > 4 && bundle44.shape() == bundle55.shape()) {
+                applySolution45(partials, numBundles, shape1, k2, bundle33, bundle55, bundle44, ansLen);
+            }
+        }
     }
     
     
