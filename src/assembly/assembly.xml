@@ -8,25 +8,24 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/..</directory>
-            <outputDirectory>/</outputDirectory>
+            <directory>${project.build.directory}/</directory>
+            <outputDirectory>/lib</outputDirectory>
             <includes>
-                <include>LICENSE</include>
+                <include>${project.build.finalName}.jar</include>
             </includes>
-        </fileSet>
-        <fileSet>
-            <directory>${project.basedir}/src/main/scripts</directory>
-            <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/java</directory>
             <outputDirectory>/src</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>LICENSE</include>
+                <include>run.bat</include>
+                <include>run.sh</include>
+            </includes>
+        </fileSet>
     </fileSets>
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory>/lib</outputDirectory>
-            <unpack>false</unpack>
-        </dependencySet>
-    </dependencySets>
 </assembly>
