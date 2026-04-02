@@ -110,8 +110,7 @@ class MainIT {
     
     private static Partials precalcPartials(int n) {
         Main.MAX_N = n;
-        Main.MIN_PIECE_CHECK_SIZE = Math.max(n-2, -1);
-        Main.NO_SAVE_FILES = true;
+        Main.SAVE_FILES = false;
 
         return PartialsInit.precalc();
     }

@@ -116,7 +116,7 @@ public class PartialsInit {
     }
 
     private static void savePrecalc(File file, Partials partials) {
-        if (Main.NO_SAVE_FILES) return;
+        if (!Main.SAVE_FILES) return;
         System.out.println("Writing " + file.getName() + " ...");
         serializeObjectToFileGZ(file, partials);
     }
@@ -209,7 +209,7 @@ public class PartialsInit {
     }
 
     private static void saveProblemCounts(File countsFile, Map<String, Long> counts) {
-        if (Main.NO_SAVE_FILES) return;
+        if (!Main.SAVE_FILES) return;
         printWriteToFileGZ(countsFile, writer -> {
             counts.forEach((shape, count) -> {
                 writer.println(shape + " " + count);
@@ -238,7 +238,7 @@ public class PartialsInit {
     }
 
     private static void saveProblemsOfShape(File problemsFile, List<Bundle[]> problems) {
-        if (Main.NO_SAVE_FILES) return;
+        if (!Main.SAVE_FILES) return;
         System.out.println("Writing problems " + problemsFile.getName());
         printWriteToFileGZ(problemsFile, (writer) -> {
             for (Bundle[] bundles : problems) {
@@ -449,7 +449,7 @@ public class PartialsInit {
         
         long time2 = System.currentTimeMillis();
         
-        if (!checkpoint.isEmpty() && !Main.NO_APPLY) {
+        if (!checkpoint.isEmpty() && Main.APPLY_PARTIALS) {
             applyShapeSolutions(shape, checkpoint, partials);
         }
         

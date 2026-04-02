@@ -15,7 +15,7 @@ public class Main {
 
     public static int MAX_N = 7;
     
-    public static int MIN_PIECE_CHECK_SIZE = MAX_N-2;
+    public static int MIN_PIECE_CHECK_SIZE = -1;
     
     public static int NUM_WORKER_THREADS = Runtime.getRuntime().availableProcessors();
     
@@ -35,18 +35,25 @@ public class Main {
     
     public static boolean PRINT_PROGRESS = true;
     
-    public static boolean NO_APPLY = false;
-    public static boolean NO_SAVE_FILES = false;
+    public static boolean APPLY_PARTIALS = true;
+    public static boolean SAVE_FILES = false;
     
     public static String MAX_PRECALC_SHAPE = null;
     public static String CHECKPOINT_SHAPES = null;
     
-    public static int DIST_123 = 1000;
-    public static int DIST_45 = 1000;
+    public static int MAX_LOOP_123 = 1000;
+    public static int MAX_LOOP_45 = 1000;
 
     public static boolean DEBUG = false;
     public static boolean DEBUG_NEXT_MOVES = false;
     
+    public static int minPieceCheckSize() {
+        if (MIN_PIECE_CHECK_SIZE >= 0) {
+            return MIN_PIECE_CHECK_SIZE;
+        }
+        return MAX_N - 2;
+    }
+
     public static boolean shouldPrecalcShape(String shape) {
         ShapeInfo si = new ShapeInfo(shape);
         int numBundles = si.numBundles;
@@ -143,7 +150,7 @@ public class Main {
             }
         }
     }
-
+    
     public static void main(String[] args) throws Exception {
         processArgs(args);
         
@@ -168,78 +175,88 @@ public class Main {
     }
 
     private static void processArgs(String[] args) throws Exception {
-        System.out.println();
+        System.out.println();   
         for (int index = 0; index < args.length; index++) {
-            String arg = args[index];
-            if ("-t".equals(arg)) {
-                NUM_WORKER_THREADS = Integer.parseInt(args[++index]);
+            String[] split = args[index].split("=", 2);
+            String key = split[0];
+            String value = (split.length > 1) ? split[1] : null;
+            
+            if ("--threads".equals(key)) {
+                NUM_WORKER_THREADS = Integer.parseInt(value);
                 System.out.println("NUM_WORKER_THREADS: " + NUM_WORKER_THREADS);
-            } else if ("-N".equals(arg)) {
-                MAX_N = Integer.parseInt(args[++index]);
+            } else if ("--n".equals(key)) {
+                MAX_N = Integer.parseInt(value);
                 System.out.println("MAX_N: " + MAX_N);
-            } else if ("-min-piece-check-size".equals(arg)) {
-                MIN_PIECE_CHECK_SIZE = Integer.parseInt(args[++index]);
+            } else if ("--min-piece-check-size".equals(key)) {
+                MIN_PIECE_CHECK_SIZE = Integer.parseInt(value);
                 System.out.println("MIN_PIECE_CHECK_SIZE: " + MIN_PIECE_CHECK_SIZE);
-            } else if ("-solve-alg".equals(arg)) {
-                SOLVE_ALG = args[++index];
+            } else if ("--solve-alg".equals(key)) {
+                SOLVE_ALG = value;
                 System.out.println("SOLVE_ALG: " + SOLVE_ALG);
-            } else if ("-precalc-alg".equals(arg)) {
-                PRECALC_ALG = args[++index];
+            } else if ("--precalc-alg".equals(key)) {
+                PRECALC_ALG = value;
                 System.out.println("PRECALC_ALG: " + PRECALC_ALG);
-            } else if ("-dfs-batch-max-cache".equals(arg)) {
-                DFS_BATCH_MAX_CACHE = Long.parseLong(args[++index]);
+            } else if ("--dfs-batch-max-cache".equals(key)) {
+                DFS_BATCH_MAX_CACHE = Long.parseLong(value);
                 System.out.println("DFS_BATCH_MAX_CACHE: " + DFS_BATCH_MAX_CACHE);
-            } else if ("-dfs-batch-size".equals(arg)) {
-                DFS_BATCH_SIZE = Integer.parseInt(args[++index]);
+            } else if ("--dfs-batch-size".equals(key)) {
+                DFS_BATCH_SIZE = Integer.parseInt(value);
                 System.out.println("DFS_BATCH_SIZE: " + DFS_BATCH_SIZE);
-            } else if ("-dfs-disk-block-size".equals(arg)) {
-                DFS_DISK_BLOCK_SIZE = Integer.parseInt(args[++index]);
+            } else if ("--dfs-disk-block-size".equals(key)) {
+                DFS_DISK_BLOCK_SIZE = Integer.parseInt(value);
                 System.out.println("DFS_DISK_BLOCK_SIZE: " + DFS_DISK_BLOCK_SIZE);
-            } else if ("-dfs-disk-batch-size".equals(arg)) {
-                DFS_DISK_BATCH_SIZE = Integer.parseInt(args[++index]);
+            } else if ("--dfs-disk-batch-size".equals(key)) {
+                DFS_DISK_BATCH_SIZE = Integer.parseInt(value);
                 System.out.println("DFS_DISK_BATCH_SIZE: " + DFS_DISK_BATCH_SIZE);
-            } else if ("-dfs-disk-seen-size".equals(arg)) {
-                DFS_DISK_SEEN_SIZE = Integer.parseInt(args[++index]);
+            } else if ("--dfs-disk-seen-size".equals(key)) {
+                DFS_DISK_SEEN_SIZE = Integer.parseInt(value);
                 System.out.println("DFS_DISK_SEEN_SIZE: " + DFS_DISK_SEEN_SIZE);
-            } else if ("-dfs-swarm-max-groups".equals(arg)) {
-                DFS_SWARM_MAX_GROUPS = Integer.parseInt(args[++index]);
+            } else if ("--dfs-swarm-max-groups".equals(key)) {
+                DFS_SWARM_MAX_GROUPS = Integer.parseInt(value);
                 System.out.println("DFS_SWARM_MAX_GROUPS: " + DFS_SWARM_MAX_GROUPS);
-            } else if ("-dfs-swarm-batch-mode".equals(arg)) {
-                DFS_SWARM_BATCH_MODE = true;
+            } else if ("--dfs-swarm-batch-mode".equals(key)) {
+                DFS_SWARM_BATCH_MODE = parseBoolean(value, true);
                 System.out.println("DFS_SWARM_BATCH_MODE: " + DFS_SWARM_BATCH_MODE);
-            } else if ("-print-progress".equals(arg)) {
-                PRINT_PROGRESS = Boolean.parseBoolean(args[++index]);
+            } else if ("--print-progress".equals(key)) {
+                PRINT_PROGRESS = parseBoolean(value, true);
                 System.out.println("PRINT_PROGRESS: " + PRINT_PROGRESS);
-            } else if ("-checkpoint-shapes".equals(arg)) {
-                CHECKPOINT_SHAPES = args[++index];
+            } else if ("--checkpoint-shapes".equals(key)) {
+                CHECKPOINT_SHAPES = value;
                 System.out.println("CHECKPOINT_SHAPES: " + CHECKPOINT_SHAPES);
-            } else if ("-max-precalc-shape".equals(arg)) {
-                MAX_PRECALC_SHAPE = args[++index];
+            } else if ("--max-precalc-shape".equals(key)) {
+                MAX_PRECALC_SHAPE = value;
                 System.out.println("MAX_PRECALC_SHAPE: " + MAX_PRECALC_SHAPE);
-            } else if ("-dist-123".equals(arg)) {
-                DIST_123 = Integer.parseInt(args[++index]);
-                System.out.println("DIST_123: " + DIST_123);
-            } else if ("-dist-45".equals(arg)) {
-                DIST_45 = Integer.parseInt(args[++index]);
-                System.out.println("DIST_45: " + DIST_45);
-            } else if ("-no-apply".equals(arg)) {
-                NO_APPLY = true;
-                System.out.println("NO_APPLY: " + NO_APPLY);
-            } else if ("-debug".equals(arg)) {
-                DEBUG = true;
+            } else if ("--max-loop-123".equals(key)) {
+                MAX_LOOP_123 = Integer.parseInt(value);
+                System.out.println("MAX_LOOP_123: " + MAX_LOOP_123);
+            } else if ("--max-loop-45".equals(key)) {
+                MAX_LOOP_45 = Integer.parseInt(value);
+                System.out.println("MAX_LOOP_45: " + MAX_LOOP_45);
+            } else if ("--apply-partials".equals(key)) {
+                APPLY_PARTIALS = parseBoolean(value, true);
+                System.out.println("APPLY_PARTIALS: " + APPLY_PARTIALS);
+            } else if ("--save-files".equals(key)) {
+                SAVE_FILES = parseBoolean(value, true);
+                System.out.println("SAVE_FILES: " + SAVE_FILES);
+            } else if ("--debug".equals(key)) {
+                DEBUG = parseBoolean(value, true);
                 System.out.println("DEBUG: " + DEBUG);
-            } else if ("-debug-next-moves".equals(arg)) {
-                DEBUG_NEXT_MOVES = true;
+            } else if ("--debug-next-moves".equals(key)) {
+                DEBUG_NEXT_MOVES = parseBoolean(value, true);
                 System.out.println("DEBUG_NEXT_MOVES: " + DEBUG_NEXT_MOVES);
-            } else if ("-solve".equals(arg)) {
+            } else if ("--solve".equals(key)) {
                 SOLVE_PROBLEM = args[++index];
                 System.out.println("SOLVE_PROBLEM: " + SOLVE_PROBLEM);
             } else {
-                throw new RuntimeException("Unknown argument: " + arg);
+                throw new RuntimeException("Unknown argument: " + key);
             }
         }
     }
-    
+
+    private static boolean parseBoolean(String value, boolean defaultValue) {
+        return (value != null) ? "true".equals(value) : defaultValue;
+    }
+
     private static void solveCustomProblem(String bundles, Partials partials) {
         Problem problem = new Problem(parseBundles(bundles));
         Solver solver = Solver.createSolver(SOLVE_ALG, partials);

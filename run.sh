@@ -28,21 +28,20 @@ else
   JAVA_RAM=-Xmx2000m
 fi
 
-CLASSPATH="lib/*"
+CLASSPATH="lib/*:target/*"
 MAIN_CLASS="oeis.a136094.Main"
-THREADS=$(nproc)
 
-ARGS=(-N 7 -min-piece-check-size 5 -t $THREADS -precalc-alg dfs -solve-alg dfs)
-#ARGS=(-N 7 -min-piece-check-size 5 -t $THREADS -precalc-alg dfs -solve-alg dfs -solve "1/123456 24/12347")
-#ARGS=(-N 7 -min-piece-check-size 5 -t $THREADS -precalc-alg dfs -solve-alg bfs -solve "1/123456 24/12347")
+ARGS=(--n=7 --precalc-alg=dfs --solve-alg=dfs)
+#ARGS=(--n=7 --precalc-alg=dfs --solve-alg=dfs --solve "1/123456 24/12347")
+#ARGS=(--n=7 --precalc-alg=dfs --solve-alg=bfs --solve "1/123456 24/12347")
 
-#ARGS=(-N 8 -min-piece-check-size 6 -t $THREADS -precalc-alg dfs-swarm -solve-alg dfs-swarm -dfs-swarm-max-groups 10 -dfs-batch-size 10000 -dfs-batch-max-cache 4000000000 -dist-123 40 -dist-45 20)
-#ARGS=(-N 8 -min-piece-check-size 6 -t $THREADS -precalc-alg dfs -solve-alg dfs-batch -dfs-batch-size 10000 -dfs-batch-max-cache 4000000000 -dist-123 40 -dist-45 20)
-#ARGS=(-N 8 -min-piece-check-size 6 -t $THREADS -precalc-alg dfs -solve-alg dfs-disk -dfs-disk-block-size 20000000 -dfs-disk-batch-size 5000000 -dfs-disk-seen-size 20000000 -dist-123 40 -dist-45 20)
+#ARGS=(--n=8 --precalc-alg=dfs-swarm --solve-alg=dfs-swarm --dfs-swarm-max-groups=10 --dfs-batch-size=10000 --dfs-batch-max-cache=4000000000 --max-loop-123=40 --max-loop-45=20)
+#ARGS=(--n=8 --precalc-alg=dfs --solve-alg=dfs-batch --dfs-batch-size=10000 --dfs-batch-max-cache=4000000000 --max-loop-123=40 --max-loop-45=20)
+#ARGS=(--n=8 --precalc-alg=dfs --solve-alg=dfs-disk --dfs-disk-block-size=20000000 --dfs-disk-batch-size=5000000 --dfs-disk-seen-size=20000000 --max-loop-123=40 --max-loop-45=20)
 
-#ARGS=(-N 9 -min-piece-check-size 7 -t $THREADS -checkpoint-shapes "1/4;1/5;5/5;5/5,5/5;1/6;1/7" -max-precalc-shape "1/7" -precalc-alg dfs -solve-alg none)
-#ARGS=(-N 9 -min-piece-check-size 7 -t $THREADS -checkpoint-shapes "1/6;1/7;1/9" -precalc-alg dfs-batch -dfs-batch-size 10000 -dfs-batch-max-cache 8000000000 -solve-alg none)
-#ARGS=(-N 9 -min-piece-check-size 7 -t %THREADS% -checkpoint-shapes "1/9" -precalc-alg none -solve-alg dfs-disk -dfs-disk-block-size 100000000 -dfs-disk-batch-size 10000000 -dfs-disk-seen-size $SEEN_SIZE -dist-123 80 -dist-45 60)
+#ARGS=(--n=9 --checkpoint-shapes=1/4;1/5;5/5;5/5,5/5;1/6;1/7 --max-precalc-shape=1/7 --precalc-alg=dfs --solve-alg=none)
+#ARGS=(--n=9 --checkpoint-shapes=1/6;1/7;1/9 --precalc-alg=dfs-batch --dfs-batch-size=10000 --dfs-batch-max-cache=8000000000 --solve-alg=none)
+#ARGS=(--n=9 --checkpoint-shapes=1/9 --precalc-alg=none --solve-alg=dfs-disk --dfs-disk-block-size=100000000 --dfs-disk-batch-size=10000000 --dfs-disk-seen-size=$SEEN_SIZE --max-loop-123=80 --max-loop-45=60)
 
 RUN_LOG="run_$(date '+%Y%m%d_%H%M%S').log"
 ERROR_LOG="error.log"

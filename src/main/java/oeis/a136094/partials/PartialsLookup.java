@@ -65,7 +65,7 @@ public class PartialsLookup {
         
         int maxDigits = sortedBundles[0].numDigits();
     
-        len = Math.min(len, Main.DIST_123);
+        len = Math.min(len, Main.MAX_LOOP_123);
 
         for (int index1 = 0; index1 < len; index1++) {
             Bundle bundle1 = sortedBundles[index1];
@@ -127,7 +127,7 @@ public class PartialsLookup {
         
         int maxDigits = sortedBundles[0].numDigits();
     
-        len = Math.min(len, Main.DIST_45);
+        len = Math.min(len, Main.MAX_LOOP_45);
 
         for (int index1 = 0; index1 < len; index1++) {
             Bundle bundle1 = sortedBundles[index1];
@@ -263,7 +263,7 @@ public class PartialsLookup {
 
     private Bundle[] splitIntoPieces(Bundle[] sortedBundles) {
         int numDigits0 = sortedBundles[0].numDigits();
-        if (numDigits0 < Main.MIN_PIECE_CHECK_SIZE) return null;
+        if (numDigits0 < Main.minPieceCheckSize()) return null;
         
         Bundle[] pieces = Arrays.stream(sortedBundles)
                 .takeWhile(b -> b.numDigits() >= numDigits0 - 1)
