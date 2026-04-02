@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+GROUPED = False
+
 def all_permutations_state(digits):
     """Return representation of all permutations of the given digits."""
     return [(d, set(digits) - {d}) for d in digits]
@@ -21,32 +23,42 @@ def make_move(state, move):
     next = []
     for (head, tail) in state:
         if head == move:
-            next.extend(all_permutations_state(tail))
+            next.extend(sorted(all_permutations_state(tail)))
         else:
             next.append((head, tail))
-    return list(sorted(dedup(next)))
+    return list(dedup(next))
 
 def parse_problem(problem):
     return [(item[0], set(item[1:])) for item in problem.split()]
 
 def state_str(state):
-    result = [f"{head}{''.join(sorted(tail))}" for head, tail in state]
-    return ' '.join(sorted(result))
+    if GROUPED:
+        return ' '.join(f"{''.join(sorted(heads))}/{''.join(sorted(digits))}" for heads, digits in group_state(state))
+    else:
+        return ' '.join(f"{head}({''.join(sorted(tail))})" for head, tail in state)
 
-def print_state(prefix, state):
-    print(''.join(prefix), ':', state_str(state))
+def group_state(state):
+    grouped = defaultdict(set)
+    for head, tail in state:
+        digits = tail | {head}
+        key = tuple(sorted(digits))
+        grouped[key].add(head)
+    return [(set(heads), set(digits)) for digits, heads in grouped.items()]
+
+def print_state(prefix, prefix_max_length, state):
+    print(f"{''.join(prefix):>{prefix_max_length}} : {state_str(state)}")
 
 def verify_solution(problem, solution):
     """Verify that the provided solution solves the problem. Does not verify that the provided solution is minimal."""
     state = problem
     
     prefix = []
-    print_state(prefix, state)
+    print_state(prefix, len(solution), state)
 
     for move in solution:
         prefix.append(move)
         state = make_move(state, move)
-        print_state(prefix, state)
+        print_state(prefix, len(solution), state)
     
     return len(state) == 0
 
