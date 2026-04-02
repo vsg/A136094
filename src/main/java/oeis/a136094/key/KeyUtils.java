@@ -11,28 +11,40 @@ import oeis.a136094.Bundle;
 
 public class KeyUtils {
 
-    // groupSize divides the digits [1, 2, 3, 4, 5, 6, 7, 8, 9] into 9 groups. 
-    // Each groupSize[i] value describes how many digits are in the i-th group.
-    //
-    // The result will be the mask consisting of 9 zero bits separated with one bits according 
-    // to the groups described by groupSize array.
-    // 
-    // The optional swap array will map the digits of the bundles into consecutive digits 
-    // in the corresponding groups.
-    // 
-    // For example:
-    //   digits: [1, 2, 3, 4, 5, 6, 7, 8, 9] 
-    //   groupSize: [3, 0, 1, 2, 0, 0, 2, 1, 0] 
-    //   groups: [{1, 2, 3}, {}, {4}, {5, 6}, {}, {}, {7, 8}, {9}, {}].
-    //   groupStartIndex: [0, 3, 3, 4, 6, 6, 6, 8, 9]
-    //   result: 00011010011100101
-    //
-    // The following should be true: groupStartIndex[i] + groupSize[i] = groupStartIndex[i+1]
-    // The following should be true: sum(groupSize) = 9
-    // 
-    // The result will always have 8 ones and 9 zero bits, so 17 bits total.
-    //
+    /**
+     * Returns a unique key for a pair of bundles. 
+     * The key is the same for all digit relabelings of the same bundles.
+     * <p>
+     * Optionally returns a normalizing permutation that transforms the input items
+     * into a normalized form.
+     * <p>
+     * The groupSize and groupStartIndex arrays are passed in to avoid allocations
+     * inside this function.
+     */
     public static int K2(Bundle bundle1, Bundle bundle2, int[] swap, int[] groupSize, int[] groupStartIndex) {
+        //
+        // groupSize divides the digits [1, 2, 3, 4, 5, 6, 7, 8, 9] into 9 groups. 
+        // Each groupSize[i] value describes how many digits are in the i-th group.
+        //
+        // The result will be the mask consisting of 9 zero bits separated with one bits according 
+        // to the groups described by groupSize array.
+        // 
+        // The optional swap array will map the digits of the bundles into consecutive digits 
+        // in the corresponding groups.
+        // 
+        // For example:
+        //   digits: [1, 2, 3, 4, 5, 6, 7, 8, 9] 
+        //   groupSize: [3, 0, 1, 2, 0, 0, 2, 1, 0] 
+        //   groups: [{1, 2, 3}, {}, {4}, {5, 6}, {}, {}, {7, 8}, {9}, {}].
+        //   groupStartIndex: [0, 3, 3, 4, 6, 6, 6, 8, 9]
+        //   result: 00011010011100101
+        //
+        // The following should be true: groupStartIndex[i] + groupSize[i] = groupStartIndex[i+1]
+        // The following should be true: sum(groupSize) = 9
+        // 
+        // The result will always have 8 ones and 9 zero bits, so 17 bits total.
+        //
+        
         int h1 = bundle1.heads();
         int h2 = bundle2.heads();
         int d1 = bundle1.digits();

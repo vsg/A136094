@@ -155,6 +155,7 @@ public class KeyBuilder {
         }
     }
 
+    // results are returned from a single thread
     public static void generateKeysInParallel(Collection<Bundle[]> input, BiConsumer<Bundle[], Key> resultCallback) {
         KeyBuilder.generateKeysInParallel((consumer) -> {
             for (Bundle[] bundles : input) {
@@ -163,6 +164,7 @@ public class KeyBuilder {
         }, resultCallback);
     }
 
+    // results are returned from a single thread
     public static void generateKeysInParallel(Generator<Bundle[]> input, BiConsumer<Bundle[], Key> resultCallback) {
         class Item {
             Bundle[] bundles;
