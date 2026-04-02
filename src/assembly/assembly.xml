@@ -23,8 +23,8 @@
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>LICENSE</include>
-                <include>run.bat</include>
-                <include>run.sh</include>
+                <include>solve.bat</include>
+                <include>solve.sh</include>
             </includes>
         </fileSet>
     </fileSets>

@@ -111,13 +111,13 @@ public class PartialsInit {
     }
     
     private static Partials loadPrecalc(File file) {
-        System.out.println("Loading " + file.getName() + " ...");
+        System.out.println("Loading " + file + " ...");
         return deserializeObjectFromFileGZ(file);
     }
 
     private static void savePrecalc(File file, Partials partials) {
         if (!Main.SAVE_FILES) return;
-        System.out.println("Writing " + file.getName() + " ...");
+        System.out.println("Writing " + file + " ...");
         serializeObjectToFileGZ(file, partials);
     }
 
@@ -239,7 +239,7 @@ public class PartialsInit {
 
     private static void saveProblemsOfShape(File problemsFile, List<Bundle[]> problems) {
         if (!Main.SAVE_FILES) return;
-        System.out.println("Writing problems " + problemsFile.getName());
+        System.out.println("Writing " + problemsFile);
         printWriteToFileGZ(problemsFile, (writer) -> {
             for (Bundle[] bundles : problems) {
                 writer.println(Bundle.bundlesToString(bundles));

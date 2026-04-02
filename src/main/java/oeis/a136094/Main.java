@@ -6,6 +6,10 @@ package oeis.a136094;
 
 import static oeis.a136094.Bundle.parseBundles;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
 import oeis.a136094.partials.Partials;
 import oeis.a136094.partials.PartialsInit;
 import oeis.a136094.solver.Solver;
@@ -176,12 +180,27 @@ public class Main {
 
     private static void processArgs(String[] args) throws Exception {
         System.out.println();   
-        for (int index = 0; index < args.length; index++) {
-            String[] split = args[index].split("=", 2);
+        
+        Properties profiles = Profiles.load();
+        List<String> arguments = new ArrayList<>(List.of(args));
+        
+        for (int index = 0; index < arguments.size(); index++) {
+            String[] split = arguments.get(index).split("=", 2);
             String key = split[0];
             String value = (split.length > 1) ? split[1] : null;
             
-            if ("--threads".equals(key)) {
+            if (index == 0 && !key.startsWith("--")) {
+                String profileArgs = (String) profiles.getProperty(key);
+                if (profileArgs == null) {
+                    throw new RuntimeException("Unknown profile: " + key);
+                }
+                arguments.removeFirst();
+                arguments.addAll(0, List.of(profileArgs.trim().split("\\s+")));
+                index = -1; // start from the beginning
+            } else if ("--profiles".equals(key)) {
+                Profiles.print();
+                System.exit(0);
+            } else if ("--threads".equals(key)) {
                 NUM_WORKER_THREADS = Integer.parseInt(value);
                 System.out.println("NUM_WORKER_THREADS: " + NUM_WORKER_THREADS);
             } else if ("--n".equals(key)) {
@@ -245,7 +264,7 @@ public class Main {
                 DEBUG_NEXT_MOVES = parseBoolean(value, true);
                 System.out.println("DEBUG_NEXT_MOVES: " + DEBUG_NEXT_MOVES);
             } else if ("--solve".equals(key)) {
-                SOLVE_PROBLEM = args[++index];
+                SOLVE_PROBLEM = arguments.get(++index);
                 System.out.println("SOLVE_PROBLEM: " + SOLVE_PROBLEM);
             } else {
                 throw new RuntimeException("Unknown argument: " + key);
