@@ -4,6 +4,7 @@
  */
 package oeis.a136094;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -14,7 +15,7 @@ public class Profiles {
     
     public static Properties load() {
         Properties props = new Properties();
-        try (InputStream in = Main.class.getClassLoader().getResourceAsStream(PROFILES_PROPERTIES)) {
+        try (InputStream in = new FileInputStream(PROFILES_PROPERTIES)) {
             props.load(in);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -22,12 +23,4 @@ public class Profiles {
         return props;
     }
     
-    public static void print() {
-        try (InputStream in = Main.class.getClassLoader().getResourceAsStream(PROFILES_PROPERTIES)) {
-            in.transferTo(System.out);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }

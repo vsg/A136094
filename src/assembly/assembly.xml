@@ -23,6 +23,7 @@
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>LICENSE</include>
+                <include>profiles.properties</include>
                 <include>solve.bat</include>
                 <include>solve.sh</include>
             </includes>

@@ -17,7 +17,7 @@ import oeis.a136094.util.LogUtils;
 
 public class Main {
 
-    public static int MAX_N = 7;
+    public static int MAX_N = 7; //XXX
     
     public static int MIN_PIECE_CHECK_SIZE = -1;
     
@@ -197,9 +197,6 @@ public class Main {
                 arguments.removeFirst();
                 arguments.addAll(0, List.of(profileArgs.trim().split("\\s+")));
                 index = -1; // start from the beginning
-            } else if ("--profiles".equals(key)) {
-                Profiles.print();
-                System.exit(0);
             } else if ("--threads".equals(key)) {
                 NUM_WORKER_THREADS = Integer.parseInt(value);
                 System.out.println("NUM_WORKER_THREADS: " + NUM_WORKER_THREADS);
