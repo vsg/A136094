@@ -21,5 +21,4 @@ def test(sequence):
 #s = "1234516782341567234815263471825346127385412367581243"
 s = "1234156782315426738152643718265341278635124376812453"
 
-print(len(s), len(set(s)), test(s))
-             
+print(f"s = {s}, length = {len(s)}, digits = {len(set(s))}, all_permutations = {test(s)}")
