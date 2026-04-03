@@ -47,10 +47,10 @@ public class PartialsInit {
     
     public static long totalPrecalcCalcTime;
     
-    public static Partials precalc() {
+    public static Partials precalc(int n) {
         Partials partials = new Partials();
         
-        List<String> shapes = enumShapes().stream()
+        List<String> shapes = enumShapes(n).stream()
                 .filter(Main::shouldPrecalcShape)
                 .sorted(ShapeInfo::compareShapesByHeadCounts)
                 .toList();
@@ -61,7 +61,7 @@ public class PartialsInit {
         
         System.out.println("Calculating totals ...");
         
-        Map<String, Long> problemCountByShape = calcProblemCounts(shapes);
+        Map<String, Long> problemCountByShape = calcProblemCounts(n, shapes);
 
         long total = printTotalPrecalc(shapes, problemCountByShape);
         
@@ -86,7 +86,7 @@ public class PartialsInit {
                 continue;
             }
             
-            precalcShape(shape, partials, currPrecalc, totalPrecalc);
+            precalcShape(n, shape, partials, currPrecalc, totalPrecalc);
             
             if (checkpoints.contains(shape)) {
                 File saveFile = checkpointFile(shape);
@@ -121,9 +121,9 @@ public class PartialsInit {
         serializeObjectToFileGZ(file, partials);
     }
 
-    private static List<String> enumShapes() {
+    private static List<String> enumShapes(int n) {
         List<String> shapes = new ArrayList<>();
-        for (int numDigits1 = 1; numDigits1 <= Main.MAX_N; numDigits1++) {
+        for (int numDigits1 = 1; numDigits1 <= n; numDigits1++) {
             for (int numHeads1 = 1; numHeads1 <= numDigits1; numHeads1++) {
 
                 shapes.add(String.format("%d/%d", numHeads1, numDigits1));
@@ -176,7 +176,7 @@ public class PartialsInit {
         return shapes;
     }
 
-    private static Map<String, Long> calcProblemCounts(List<String> shapes) {
+    private static Map<String, Long> calcProblemCounts(int n, List<String> shapes) {
         Map<String, Long> counts = Collections.synchronizedMap(new LinkedHashMap<>());
         
         File countsFile = new File(COUNTS_FILE);
@@ -190,7 +190,7 @@ public class PartialsInit {
 
         if (!missing.isEmpty()) {
             missing.forEach(shape -> {
-                long count = problemsOfShape(shape).size();
+                long count = problemsOfShape(n, shape).size();
                 counts.put(shape, count);
             });
             saveProblemCounts(countsFile, counts);
@@ -217,13 +217,13 @@ public class PartialsInit {
         });
     }
     
-    private static List<Bundle[]> problemsOfShape(String shape) {
+    private static List<Bundle[]> problemsOfShape(int n, String shape) {
         List<Bundle[]> problems = new ArrayList<>();
         File problemsFile = shapeProblemsFile(shape);
         if (problemsFile.exists()) {
             loadProblemsOfShape(problemsFile, problems);
         } else {
-            iterateUniqueBundlesOfShape(shape, (bundles) -> {
+            iterateUniqueBundlesOfShape(n, shape, (bundles) -> {
                 problems.add(bundles);
             });
             saveProblemsOfShape(problemsFile, problems);
@@ -247,10 +247,10 @@ public class PartialsInit {
         });
     }
     
-    private static void iterateUniqueBundlesOfShape(String shape, Consumer<Bundle[]> callback) {
+    private static void iterateUniqueBundlesOfShape(int n, String shape, Consumer<Bundle[]> callback) {
         Set<Key> seen = new MemoryEfficientHashSet<>();
         KeyBuilder.generateKeysInParallel((consumer) -> {
-            iterateBundlesOfShape(shape, true, true, consumer);
+            iterateBundlesOfShape(n, shape, true, true, consumer);
         }, (bundles, key) -> {
             if (seen.add(key)) {
                 callback.accept(bundles);
@@ -259,7 +259,8 @@ public class PartialsInit {
     }
     
     // may skip k1 and k2 dups; bundles 3-4-5 are sorted.
-    private static void iterateBundlesOfShape(String shape, boolean skipK1Dups, boolean skipK2Dups, Consumer<Bundle[]> callback) {
+    private static void iterateBundlesOfShape(int n, String shape, boolean skipK1Dups, boolean skipK2Dups,
+            Consumer<Bundle[]> callback) {
         int[] shapes = ShapeInfo.parseShape(shape);
         
         int shape1 = (shapes.length > 0) ? shapes[0] : 0;
@@ -274,7 +275,7 @@ public class PartialsInit {
         int numDigits4 = shape4 >> 4;
         int numDigits5 = shape5 >> 4;
 
-        int validDigits = (1 << Main.MAX_N) - 1;
+        int validDigits = (1 << n) - 1;
         
         int[] groupSize = new int[9];
         int[] groupStartIndex = new int[9];
@@ -433,11 +434,11 @@ public class PartialsInit {
         return totalPrecalc;
     }
 
-    private static void precalcShape(String shape, Partials partials, AtomicLong currPrecalc, AtomicLong totalPrecalc) {
+    private static void precalcShape(int n, String shape, Partials partials, AtomicLong currPrecalc, AtomicLong totalPrecalc) {
         System.out.println(String.format("Precalc shape %s (%d / %d)", shape, currPrecalc.get(), totalPrecalc.get()));
         long begin = System.currentTimeMillis();
         
-        List<Bundle[]> uniqueBundles = problemsOfShape(shape);
+        List<Bundle[]> uniqueBundles = problemsOfShape(n, shape);
         
         File solutionsFile = shapeSolutionsFile(shape);
         
@@ -450,7 +451,7 @@ public class PartialsInit {
         long time2 = System.currentTimeMillis();
         
         if (!checkpoint.isEmpty() && Main.APPLY_PARTIALS) {
-            applyShapeSolutions(shape, checkpoint, partials);
+            applyShapeSolutions(n, shape, checkpoint, partials);
         }
         
         long time3 = System.currentTimeMillis();
@@ -518,23 +519,23 @@ public class PartialsInit {
         }
     }
 
-    private static void applyShapeSolutions(String shape, Checkpoint checkpoint, Partials partials) {
+    private static void applyShapeSolutions(int n, String shape, Checkpoint checkpoint, Partials partials) {
         System.out.println("Applying solutions ...");
 
         int[] shapes = ShapeInfo.parseShape(shape);
         
         if (shapes.length <= 3) {
-            applyShapeSolutions123(shape, checkpoint, partials);
+            applyShapeSolutions123(n, shape, checkpoint, partials);
         } else {
-            applyShapeSolutions45(shape, checkpoint, partials);
+            applyShapeSolutions45(n, shape, checkpoint, partials);
         }
     }
 
-    private static void applyShapeSolutions123(String shape, Checkpoint checkpoint, Partials partials) {
+    private static void applyShapeSolutions123(int n, String shape, Checkpoint checkpoint, Partials partials) {
         int[] swap1 = new int[9];
         
         KeyBuilder.generateKeysInParallel((consumer) -> {
-            iterateBundlesOfShape(shape, true, false, consumer);
+            iterateBundlesOfShape(n, shape, true, false, consumer);
         }, (bundles, key) -> {
             Integer ansLen = checkpoint.get(key);
             if (ansLen == null) return; // skipped
@@ -577,13 +578,13 @@ public class PartialsInit {
         if (numBundles > 2) partials.updateMaxKnownNextSolutionLength123By2(shape1, bundle22, ansLen);
     }
 
-    private static void applyShapeSolutions45(String shape, Checkpoint checkpoint, Partials partials) {
+    private static void applyShapeSolutions45(int n, String shape, Checkpoint checkpoint, Partials partials) {
         int[] k2swap = new int[9];
         int[] groupSize = new int[9];
         int[] groupStartIndex = new int[9];
 
         KeyBuilder.generateKeysInParallel((consumer) -> {
-            iterateBundlesOfShape(shape, true, true, consumer);
+            iterateBundlesOfShape(n, shape, true, true, consumer);
         }, (bundles, key) -> {
             Integer ansLen = checkpoint.get(key);
             if (ansLen == null) return; // skipped

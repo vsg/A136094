@@ -73,7 +73,7 @@ class MainIT {
         
         @BeforeAll
         static void init() {
-            partials = precalcPartials(7);
+            partials = PartialsInit.precalc(7);
         }
         
         @ParameterizedTest
@@ -108,15 +108,8 @@ class MainIT {
         
     }
     
-    private static Partials precalcPartials(int n) {
-        Main.MAX_N = n;
-        Main.SAVE_FILES = false;
-
-        return PartialsInit.precalc();
-    }
-    
     private static String solveProblem(int n, String alg) {
-        Partials partials = precalcPartials(n);
+        Partials partials = PartialsInit.precalc(n);
         
         return solveProblem(n, alg, partials);
     }

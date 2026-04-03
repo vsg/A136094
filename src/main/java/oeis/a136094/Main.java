@@ -17,7 +17,7 @@ import oeis.a136094.util.LogUtils;
 
 public class Main {
 
-    public static int MAX_N = 7; //XXX
+    public static int MAX_N = 7;
     
     public static int MIN_PIECE_CHECK_SIZE = -1;
     
@@ -159,7 +159,7 @@ public class Main {
         processArgs(args);
         
         long precalcBegin = System.currentTimeMillis();
-        Partials partials = PartialsInit.precalc();
+        Partials partials = PartialsInit.precalc(MAX_N);
         long precalcEnd = System.currentTimeMillis();
 
         if (SOLVE_PROBLEM != null) {
