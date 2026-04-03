@@ -531,6 +531,8 @@ public class PartialsInit {
     }
 
     private static void applyShapeSolutions123(String shape, Checkpoint checkpoint, Partials partials) {
+        int[] swap1 = new int[9];
+        
         KeyBuilder.generateKeysInParallel((consumer) -> {
             iterateBundlesOfShape(shape, true, false, consumer);
         }, (bundles, key) -> {
@@ -543,7 +545,7 @@ public class PartialsInit {
 
             int shape1 = bundle1.shape();
             
-            int[] swap1 = bundle1.makeBundleSwap1234();
+            bundle1.makeBundleSwap1234(swap1);
             
             Bundle bundle22 = (bundle2 != null) ? bundle2.swapBundleDigits(swap1) : null;
             Bundle bundle33 = (bundle3 != null) ? bundle3.swapBundleDigits(swap1) : null;

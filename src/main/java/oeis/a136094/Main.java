@@ -29,8 +29,8 @@ public class Main {
     public static String SOLVE_PROBLEM = null;
     
     public static int DFS_BATCH_SIZE = 10000;
-    public static long DFS_BATCH_MAX_CACHE = 200_000_000L;
-    public static int DFS_SWARM_MAX_GROUPS = 6;
+    public static long DFS_BATCH_MAX_CACHE = 250_000_000L;
+    public static int DFS_SWARM_MAX_GROUPS = 2;
     public static boolean DFS_SWARM_BATCH_MODE = false;
 
     public static int DFS_DISK_BLOCK_SIZE = 50_000_000; // N prefixes in, N*5 prefixes out

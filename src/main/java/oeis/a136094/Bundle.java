@@ -5,7 +5,6 @@
 package oeis.a136094;
 
 import static java.lang.Integer.bitCount;
-import static oeis.a136094.util.BitUtils.BITWISE_OR;
 import static oeis.a136094.util.BitUtils.MASK_18;
 import static oeis.a136094.util.BitUtils.MASK_9;
 import static oeis.a136094.util.BitUtils.digitsMaskToString;
@@ -183,11 +182,10 @@ public class Bundle {
         return packedToBundle[pack(hh, dd)];
     }
 
-    public int[] makeBundleSwap1234() {
+    public void makeBundleSwap1234(int[] swap) {
         int nextHeadDigit = 0;
         int nextTailDigit = numHeads;
         int nextMissingDigit = numDigits;
-        int[] swap = new int[9];
         for (int d = 0; d < 9; d++) {
             int mask = 1 << d;
             if ((heads & mask) != 0) {
@@ -198,7 +196,6 @@ public class Bundle {
                 swap[d] = nextMissingDigit++;
             }
         }
-        return swap;
     }
     
     @Override
@@ -208,10 +205,32 @@ public class Bundle {
 
     public static Bundle parse(String bundleStr) {
         Bundle bundle = stringToBundle.get(bundleStr);
-        if (bundle == null) throw new RuntimeException("Failed to parse a bundle: " + bundleStr);
+        if (bundle == null) {
+            throw new RuntimeException("Failed to parse a bundle: " + bundleStr);
+        }
         return bundle;
     }
 
+    public static Bundle[] parseBundles(String str) {
+        return Arrays.stream(str.split(" "))
+                .map(Bundle::parse)
+                .toArray(Bundle[]::new);
+    }
+
+    public static String bundlesToString(Bundle... bundles) {
+        return Arrays.stream(bundles)
+               .map(Bundle::toString)
+               .collect(Collectors.joining(" "));
+    }
+    
+    public static int shape(int numHeads, int numDigits) {
+        return (numDigits << 4) | numHeads;
+    }
+
+    public static int pack(int heads, int digits) {
+        return (heads << 9) | digits;
+    }
+    
     public static int[] packAll(Bundle[] bundles) {
         return Arrays.stream(bundles)
                 .mapToInt(Bundle::pack)
@@ -225,35 +244,21 @@ public class Bundle {
     }
     
     public static int heads(Bundle[] bundles) {
-        return Arrays.stream(bundles)
-                .mapToInt(Bundle::heads)
-                .reduce(0, BITWISE_OR);
+        int result = 0, len = bundles.length;
+        for (int i = 0; i < len; i++) {
+            result |= bundles[i].heads();
+            if (result == MASK_9) break;
+        }
+        return result;
     }
     
     public static int digits(Bundle[] bundles) {
-        return Arrays.stream(bundles)
-                .mapToInt(Bundle::digits)
-                .reduce(0, BITWISE_OR);
-    }
-    
-    public static String bundlesToString(Bundle... bundles) {
-        return Arrays.stream(bundles)
-               .map(Bundle::toString)
-               .collect(Collectors.joining(" "));
-    }
-    
-    public static Bundle[] parseBundles(String str) {
-        return Arrays.stream(str.split(" "))
-                .map(Bundle::parse)
-                .toArray(Bundle[]::new);
-    }
-
-    public static int shape(int numHeads, int numDigits) {
-        return (numDigits << 4) | numHeads;
-    }
-
-    public static int pack(int heads, int digits) {
-        return (heads << 9) | digits;
+        int result = 0, len = bundles.length;
+        for (int i = 0; i < len; i++) {
+            result |= bundles[i].digits();
+            if (result == MASK_9) break;
+        }
+        return result;
     }
     
     public static Bundle[] sortBundles(Bundle[] bundles) {
