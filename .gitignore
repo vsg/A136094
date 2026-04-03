@@ -33,3 +33,10 @@ build/
 .vscode/
 /backend/bin/
 /bin/
+
+### Solver ###
+problems/
+solutions/
+counts.txt.gz
+precalc-*.bin.gz
+solve_*.log
