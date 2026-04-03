@@ -63,6 +63,12 @@ class MainIT {
             assertThat(solveProblem(n, "dfs-swarm")).isEqualTo(EXPECTED_ANSWERS[n]);
         }
         
+        @ParameterizedTest
+        @ValueSource(ints = { 1, 2, 3, 4, 5, 6 })
+        void testDfsLoop(int n) {
+            assertThat(solveProblem(n, "dfs-loop")).isEqualTo(EXPECTED_ANSWERS[n]);
+        }
+        
     }
     
     @Tag("slow")
@@ -104,6 +110,12 @@ class MainIT {
         @ValueSource(ints = { 7 })
         void testDfsSwarm(int n) {
             assertThat(solveProblem(n, "dfs-swarm", partials)).isEqualTo(EXPECTED_ANSWERS[n]);
+        }
+        
+        @ParameterizedTest
+        @ValueSource(ints = { 7 })
+        void testDfsLoop(int n) {
+            assertThat(solveProblem(n, "dfs-loop", partials)).isEqualTo(EXPECTED_ANSWERS[n]);
         }
         
     }

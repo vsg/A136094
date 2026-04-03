@@ -12,7 +12,7 @@ public abstract class Solver {
 
     protected Partials partials;
 
-    public Solver(Partials partials) {
+    protected Solver(Partials partials) {
         this.partials = partials;
     }
 
@@ -43,6 +43,7 @@ public abstract class Solver {
         case "dfs-batch" -> true;
         case "dfs-disk" -> true;
         case "dfs-swarm" -> true;
+        case "dfs-loop" -> false;
         default -> throw new RuntimeException("Unknown algorithm: " + algName);
         };
     }
@@ -56,6 +57,7 @@ public abstract class Solver {
         case "dfs-batch" -> new DFSBatchSolver(partials);
         case "dfs-disk" -> new DFSDiskSolver(partials);
         case "dfs-swarm" -> new DFSSwarmSolver(partials);
+        case "dfs-loop" -> new DFSLoopSolver(partials);
         default -> throw new RuntimeException("Unknown algorithm: " + algName);
         };
     }
