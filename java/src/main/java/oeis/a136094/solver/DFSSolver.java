@@ -16,9 +16,12 @@ public class DFSSolver extends Solver {
     @Override
     public String solve(Bundle[] bundles0, int bestAnsLen) {
         NodeProcessor processor = new NodeProcessor(partials);
+        
         SeenCache seenCache = new SeenCache();
+        
         Bundle[] sortedBundles0 = Bundle.sortBundles(bundles0);
         Node node0 = new Node("", sortedBundles0, null);
+        
         return solveDFS(node0, bestAnsLen, processor, seenCache);
     }
     

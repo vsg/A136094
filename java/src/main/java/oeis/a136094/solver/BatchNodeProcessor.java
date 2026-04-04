@@ -15,7 +15,7 @@ import oeis.a136094.partials.Partials;
 
 public class BatchNodeProcessor implements Runnable {
 
-    private static final Batch TERMINATOR = new Batch(-1, Collections.emptyList());
+    private static final Batch END = new Batch(-1, Collections.emptyList());
     
     private final Partials partials;
     private final BlockingQueue<Batch> queue;
@@ -35,7 +35,7 @@ public class BatchNodeProcessor implements Runnable {
     public void run() {
         try {
             Batch batch;
-            while ((batch = queue.take()) != TERMINATOR) {
+            while ((batch = queue.take()) != END) {
                 processBatch(batch, numThreads.get());
             }
         } catch (InterruptedException e) {
@@ -56,7 +56,7 @@ public class BatchNodeProcessor implements Runnable {
     }
     
     public void shutdown() {
-        queue.add(TERMINATOR);
+        queue.add(END);
     }
     
 }

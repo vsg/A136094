@@ -21,11 +21,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import oeis.a136094.Bundle;
 import oeis.a136094.Checkpoint;
@@ -49,46 +49,43 @@ public class PartialsInit {
     public static Partials precalc() {
         Partials partials = new Partials();
         
-        List<String> allShapes = enumShapes();
+        List<String> shapes = enumShapes().stream()
+                .filter(Main::shouldPrecalcShape)
+                .sorted(ShapeInfo::compareShapesByHeadCounts)
+                .toList();
         
-        allShapes = Main.restrictPrecalcShapes(allShapes);
-        
-        allShapes.sort(ShapeInfo::compareShapesByHeadCounts);
+        List<String> checkpoints = Optional.ofNullable(Main.CHECKPOINT_SHAPES)
+                .map(s -> List.of(s.split(";")))
+                .orElse(List.of());
         
         System.out.println("Calculating totals ...");
         
-        Map<String, Long> problemCountByShape = generateProblems(allShapes);
+        Map<String, Long> problemCountByShape = generateProblems(shapes);
         
-        AtomicLong totalPrecalc = new AtomicLong(printTotalPrecalc(allShapes, problemCountByShape));
+        AtomicLong totalPrecalc = new AtomicLong(calcTotalPrecalc(shapes, problemCountByShape));
         AtomicLong currPrecalc = new AtomicLong(1);
         
-        String checkpointShape = null;
-        if (Main.CHECKPOINT_SHAPES != null) {
-            File checkpointFile = null;
-            for (String shape : Main.CHECKPOINT_SHAPES.split(";")) {
-                File file = checkpointFile(shape);
-                if (file.exists()) {
-                    checkpointFile = file;
-                    checkpointShape = shape;
-                }
-            }
-            if (checkpointFile != null) {
-                partials = loadPrecalc(checkpointFile);
-            }
+        String checkpointShape = findLastExistingCheckpoint(checkpoints);
+        if (checkpointShape != null) {
+            File checkpointFile = checkpointFile(checkpointShape);
+            partials = loadPrecalc(checkpointFile);
         }
 
-        for (String shape : allShapes) {
-            if (checkpointShape != null && ShapeInfo.compareShapesByHeadCounts(shape, checkpointShape) <= 0) {
+        if (Main.MAX_PRECALC_SHAPE != null) {
+            shapes = shapes.stream()
+                    .filter(shape -> ShapeInfo.compareShapesByHeadCounts(shape, Main.MAX_PRECALC_SHAPE) <= 0)
+                    .toList();
+        }
+        
+        for (String shape : shapes) {
+            if (isPrecalcDone(shape, checkpointShape)) {
                 currPrecalc.addAndGet(problemCountByShape.getOrDefault(shape, 0L));
                 continue;
-            }
-            if (Main.MAX_PRECALC_SHAPE != null && ShapeInfo.compareShapesByHeadCounts(shape, Main.MAX_PRECALC_SHAPE) > 0) {
-                break;
             }
             
             precalcShape(shape, partials, currPrecalc, totalPrecalc);
             
-            if (Main.CHECKPOINT_SHAPES != null && Arrays.asList(Main.CHECKPOINT_SHAPES.split(";")).contains(shape)) {
+            if (checkpoints.contains(shape)) {
                 File saveFile = checkpointFile(shape);
                 if (!saveFile.exists()) {
                     savePrecalc(saveFile, partials);
@@ -97,6 +94,17 @@ public class PartialsInit {
         }
         
         return partials;
+    }
+
+    private static String findLastExistingCheckpoint(List<String> checkpoints) {
+        return checkpoints.stream()
+                .filter(shape -> checkpointFile(shape).exists())
+                .reduce((first, second) -> second)
+                .orElse(null);
+    }
+    
+    private static boolean isPrecalcDone(String shape, String checkpointShape) {
+        return checkpointShape != null && ShapeInfo.compareShapesByHeadCounts(shape, checkpointShape) <= 0;
     }
     
     private static Partials loadPrecalc(File file) {
@@ -111,36 +119,46 @@ public class PartialsInit {
 
     private static List<String> enumShapes() {
         List<String> shapes = new ArrayList<>();
-
         for (int numDigits1 = 1; numDigits1 <= Main.MAX_N; numDigits1++) {
             for (int numHeads1 = 1; numHeads1 <= numDigits1; numHeads1++) {
+
                 shapes.add(String.format("%d/%d", numHeads1, numDigits1));
+                
                 for (int numDigits2 = 1; numDigits2 <= numDigits1; numDigits2++) {
                     if (numDigits2 < numDigits1-2) continue;
                     int maxHeads2 = numDigits2 < numDigits1 ? numDigits2 : numHeads1;
                     for (int numHeads2 = 1; numHeads2 <= maxHeads2; numHeads2++) {
+                        
                         shapes.add(String.format("%d/%d,%d/%d", numHeads1, numDigits1, 
                                 numHeads2, numDigits2));
+                        
                         for (int numDigits3 = 1; numDigits3 <= numDigits2; numDigits3++) {
                             if (numDigits3 < numDigits1-2) continue;
                             int maxHeads3 = numDigits3 < numDigits2 ? numDigits3 : numHeads2;
                             for (int numHeads3 = 1; numHeads3 <= maxHeads3; numHeads3++) {
+                                
                                 shapes.add(String.format("%d/%d,%d/%d,%d/%d", numHeads1, numDigits1, 
                                         numHeads2, numDigits2, numHeads3, numDigits3));
+                                
                                 for (int numDigits4 = 1; numDigits4 <= numDigits3; numDigits4++) {
                                     if (numDigits4 < numDigits1-2) continue;
                                     int maxHeads4 = numDigits4 < numDigits3 ? numDigits4 : numHeads3;
                                     for (int numHeads4 = 1; numHeads4 <= maxHeads4; numHeads4++) {
+                                        
                                         shapes.add(String.format("%d/%d,%d/%d,%d/%d,%d/%d", numHeads1, numDigits1, 
                                                 numHeads2, numDigits2, numHeads3, numDigits3, numHeads4, numDigits4));
+                                        
                                         if (numDigits1 > 6) continue;//XXX skip unused, to speed up enumeration
+                                        
                                         for (int numDigits5 = 1; numDigits5 <= numDigits4; numDigits5++) {
                                             if (numDigits5 < numDigits1-2) continue;
                                             int maxHeads5 = numDigits5 < numDigits4 ? numDigits5 : numHeads4;
                                             for (int numHeads5 = 1; numHeads5 <= maxHeads5; numHeads5++) {
+                                                
                                                 shapes.add(String.format("%d/%d,%d/%d,%d/%d,%d/%d,%d/%d", numHeads1, numDigits1, 
                                                         numHeads2, numDigits2, numHeads3, numDigits3, 
                                                         numHeads4, numDigits4, numHeads5, numDigits5));
+                                                
                                             }
                                         }
                                     }
@@ -151,13 +169,10 @@ public class PartialsInit {
                 }
             }
         }
-
-        shapes.sort(ShapeInfo::compareShapesByHeadCounts);
-
         return shapes;
     }
 
-    private static Map<String, Long> generateProblems(List<String> allShapes) {
+    private static Map<String, Long> generateProblems(List<String> shapes) {
         Map<String, Long> counts = Collections.synchronizedMap(new LinkedHashMap<>());
         
         File countsFile = new File(COUNTS_FILE);
@@ -165,9 +180,9 @@ public class PartialsInit {
             loadShapeCounts(countsFile, counts);
         }
 
-        List<String> missing = allShapes.stream()
+        List<String> missing = shapes.stream()
                 .filter(shape -> !counts.containsKey(shape))
-                .collect(Collectors.toList());
+                .toList();
 
         if (!missing.isEmpty()) {
             missing.forEach(shape -> {
@@ -341,7 +356,7 @@ public class PartialsInit {
         }
     }
 
-    // is bundle2 a dup of bundle1, either whole or partially
+    // is bundle2 a duplicate of bundle1, either whole or partially
     public static boolean isDup(Bundle bundle1, Bundle bundle2) {
         int heads1 = bundle1.heads();
         int heads2 = bundle2.heads(); 
@@ -379,7 +394,7 @@ public class PartialsInit {
         return problems;
     }
 
-    private static long printTotalPrecalc(List<String> shapes, Map<String, Long> shapeBundleCounts) {
+    private static long calcTotalPrecalc(List<String> shapes, Map<String, Long> shapeBundleCounts) {
         long totalPrecalc = 0;
         long[] precalcBySize = new long[10];
         

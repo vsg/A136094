@@ -14,7 +14,7 @@ import oeis.a136094.util.MemoryEfficientHashSet;
 public class SeenCache {
     
     private final ArrayList<Set<Key>> levelSeenKeys = new ArrayList<>();
-    private final long[] levelSeenCountInts = new long[100];
+    private final long[] levelSeenIntsCount = new long[100];
     
     public boolean add(int level, Key key) {
         while (levelSeenKeys.size() <= level) {
@@ -22,22 +22,22 @@ public class SeenCache {
         }
         Set<Key> seen = levelSeenKeys.get(level);
         if (!seen.add(key)) return false;
-        levelSeenCountInts[level] += key.size();
+        levelSeenIntsCount[level] += key.size();
         return true;
     }
 
     public void clearLevel(int level) {
         if (levelSeenKeys.size() > level) {
             levelSeenKeys.get(level).clear();
-            levelSeenCountInts[level] = 0;
+            levelSeenIntsCount[level] = 0;
         }
     }
     
-    public long cleanup(long maxCacheSize) {
-        long totalCached = Arrays.stream(levelSeenCountInts).sum();
+    public long cleanUp(long maxCacheSize) {
+        long totalCached = Arrays.stream(levelSeenIntsCount).sum();
         for (int level = levelSeenKeys.size()-1; level >= 0; level--) {
             if (totalCached < maxCacheSize) break;
-            totalCached -= levelSeenCountInts[level];
+            totalCached -= levelSeenIntsCount[level];
             clearLevel(level);
         }
         return totalCached;

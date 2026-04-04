@@ -7,7 +7,6 @@ package oeis.a136094.solver;
 import static oeis.a136094.util.ParallelUtils.processInBatches;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -73,7 +72,7 @@ public class BFSBatchSolver extends Solver {
     }
 
     private String solveBFS(Node node0, int bestAnsLen, Queue<Batch> processorQueue, Progress progress) {
-        List<Node> nodes = Arrays.asList(node0);
+        List<Node> nodes = List.of(node0);
         for (int level = 0; level <= bestAnsLen; level++) {
             if (nodes.isEmpty()) break;
             progress.printProgress(level, nodes.size(), nodes.get(nodes.size()/2));

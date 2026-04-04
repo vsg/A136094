@@ -55,19 +55,6 @@ public class ShapeInfo {
                 + (numDigits5 == maxSize ? numHeads5 : 0);
     }
     
-    public static int[] parseShape(String shape) {
-        String[] split = shape.split(",");
-        int[] result = new int[split.length];
-        for (int i = 0; i < split.length; i++) {
-            String part = split[i];
-            String[] sizes = part.split("/");
-            int numHeads = Integer.parseInt(sizes[0]);
-            int numDigits = Integer.parseInt(sizes[1]);
-            result[i] = shape(numHeads, numDigits);
-        }
-        return result;
-    }
-
     public static int compareShapesByHeadCounts(String shape1, String shape2) {
         int[] c1 = shapeHeadCounts(shape1);
         int[] c2 = shapeHeadCounts(shape2);
@@ -79,15 +66,28 @@ public class ShapeInfo {
         return shape1.compareTo(shape2); // if all counts are same, compare lexicographically
     }
 
-    private static int[] shapeHeadCounts(String shape) {
-        int[] shapes = parseShape(shape);
+    private static int[] shapeHeadCounts(String shapeStr) {
+        int[] shapes = parseShape(shapeStr);
         int[] headCounts = new int[10];
-        for (int sh : shapes) {
-            int numHeads = sh & MASK_4;
-            int numDigits = sh >> 4;
+        for (int shape : shapes) {
+            int numHeads = shape & MASK_4;
+            int numDigits = shape >> 4;
             headCounts[numDigits] += numHeads;
         }
         return headCounts;
+    }
+
+    public static int[] parseShape(String shapeStr) {
+        String[] split = shapeStr.split(",");
+        int[] result = new int[split.length];
+        for (int i = 0; i < split.length; i++) {
+            String part = split[i];
+            String[] sizes = part.split("/");
+            int numHeads = Integer.parseInt(sizes[0]);
+            int numDigits = Integer.parseInt(sizes[1]);
+            result[i] = shape(numHeads, numDigits);
+        }
+        return result;
     }
 
 }

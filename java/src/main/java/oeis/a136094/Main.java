@@ -6,9 +6,6 @@ package oeis.a136094;
 
 import static oeis.a136094.Bundle.parseBundles;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import oeis.a136094.partials.Partials;
 import oeis.a136094.partials.PartialsInit;
 import oeis.a136094.solver.Solver;
@@ -49,108 +46,101 @@ public class Main {
     public static boolean DEBUG = false;
     public static boolean DEBUG_NEXT_MOVES = false;
     
-    public static List<String> restrictPrecalcShapes(List<String> shapes) {
-        return shapes.stream()
-                .filter(shape -> {
-                    ShapeInfo si = new ShapeInfo(shape);
-                    int numBundles = si.numBundles;
-                    int maxSize = si.maxSize;
-                    int maxHeads = si.maxHeads;
-                    
-                    int d1 = si.numDigits1, d2 = si.numDigits2, d3 = si.numDigits3;
-                    
-                    if (MAX_N <= 7) {
-                        if (maxSize == MAX_N) {
-                            return numBundles == 1 && (maxHeads == 1);
-                        } else if (maxSize == MAX_N-1) {
-                            return numBundles == 1
-                                    || numBundles == 2 && (maxHeads == 1 && d2 >= d1-1)
-                                    || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
-                        } else if (maxSize == MAX_N-2) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
-                        } else if (maxSize == MAX_N-3) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3;
-                        } else if (maxSize == MAX_N-4) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3
-                                    || numBundles == 4;
-                        } else {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3
-                                    || numBundles == 4;
-                        }
-                    } else if (MAX_N <= 8) {
-                        if (maxSize == MAX_N) {
-                            return numBundles == 1 && (maxHeads == 1);
-                        } else if (maxSize == MAX_N-1) {
-                            return numBundles == 1
-                                    || numBundles == 2 && (maxHeads == 1 && d2 >= d1-1)
-                                    || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
-                        } else if (maxSize == MAX_N-2) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
-                        } else if (maxSize == MAX_N-3) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3;
-                        } else if (maxSize == MAX_N-4) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3
-                                    || numBundles == 4;
-                        } else {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3
-                                    || numBundles == 4
-                                    || numBundles == 5;
-                        }
-                    } else {
-                        if (maxSize == MAX_N) {
-                            return numBundles == 1 && (maxHeads == 1);
-                        } else if (maxSize == MAX_N-1) {
-                            return numBundles == 1
-                                    || numBundles == 2 && (maxHeads == 1 && d2 >= d1-1)
-                                    || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
-                        } else if (maxSize == MAX_N-2) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
-                        } else if (maxSize == MAX_N-3) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3;
-                        } else if (maxSize == MAX_N-4) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3
-                                    || numBundles == 4 && si.numMajorHeads <= 4;//&& d3 < maxSize;// 
-                        } else if (maxSize == MAX_N-5) {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3
-                                    || numBundles == 4
-                                    || numBundles == 5 && si.numMajorHeads <= 6;// && (
-                                            //si.numMajorHeads <= 2 // mh1=7.6GB, mh2=12.3GB, mh3=20GB//&& d3 < maxSize;// 
-                                            //si.numMajorHeads <= 8 && d3 < maxSize 
-                                            //|| si.numMajorHeads > 8 && si.numDigits5 == maxSize); 
-                        } else {
-                            return numBundles == 1
-                                    || numBundles == 2
-                                    || numBundles == 3
-                                    || numBundles == 4
-                                    || numBundles == 5;
-                        }
-                    }
-                })
-                .collect(Collectors.toList());
+    public static boolean shouldPrecalcShape(String shape) {
+        ShapeInfo si = new ShapeInfo(shape);
+        int numBundles = si.numBundles;
+        int maxSize = si.maxSize;
+        int maxHeads = si.maxHeads;
+        
+        int d1 = si.numDigits1, d2 = si.numDigits2, d3 = si.numDigits3;
+        
+        if (MAX_N <= 7) {
+            if (maxSize == MAX_N) {
+                return numBundles == 1 && (maxHeads == 1);
+            } else if (maxSize == MAX_N-1) {
+                return numBundles == 1
+                        || numBundles == 2 && (maxHeads == 1 && d2 >= d1-1)
+                        || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
+            } else if (maxSize == MAX_N-2) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
+            } else if (maxSize == MAX_N-3) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3;
+            } else if (maxSize == MAX_N-4) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3
+                        || numBundles == 4;
+            } else {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3
+                        || numBundles == 4;
+            }
+        } else if (MAX_N <= 8) {
+            if (maxSize == MAX_N) {
+                return numBundles == 1 && (maxHeads == 1);
+            } else if (maxSize == MAX_N-1) {
+                return numBundles == 1
+                        || numBundles == 2 && (maxHeads == 1 && d2 >= d1-1)
+                        || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
+            } else if (maxSize == MAX_N-2) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
+            } else if (maxSize == MAX_N-3) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3;
+            } else if (maxSize == MAX_N-4) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3
+                        || numBundles == 4;
+            } else {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3
+                        || numBundles == 4
+                        || numBundles == 5;
+            }
+        } else {
+            if (maxSize == MAX_N) {
+                return numBundles == 1 && (maxHeads == 1);
+            } else if (maxSize == MAX_N-1) {
+                return numBundles == 1
+                        || numBundles == 2 && (maxHeads == 1 && d2 >= d1-1)
+                        || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
+            } else if (maxSize == MAX_N-2) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3 && (maxHeads == 1 && d3 >= d1-1);
+            } else if (maxSize == MAX_N-3) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3;
+            } else if (maxSize == MAX_N-4) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3
+                        || numBundles == 4 && si.numMajorHeads <= 4; 
+            } else if (maxSize == MAX_N-5) {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3
+                        || numBundles == 4
+                        || numBundles == 5 && si.numMajorHeads <= 6; 
+            } else {
+                return numBundles == 1
+                        || numBundles == 2
+                        || numBundles == 3
+                        || numBundles == 4
+                        || numBundles == 5;
+            }
+        }
     }
 
     public static void main(String[] args) throws Exception {

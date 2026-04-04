@@ -5,7 +5,6 @@
 package oeis.a136094.solver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +71,7 @@ public class DFSBatchSolver extends Solver {
 
         Bundle[] sortedBundles0 = Bundle.sortBundles(bundles0);
         Node node0 = new Node("", sortedBundles0, null);
-        Batch batch0 = new Batch(bestAnsLen, Arrays.asList(node0));
+        Batch batch0 = new Batch(bestAnsLen, List.of(node0));
         
         processorQueue.add(batch0);
         orderingQueue.add(batch0);
@@ -128,7 +127,7 @@ public class DFSBatchSolver extends Solver {
                 
                 numNodesSinceCleanup++;
                 if (numNodesSinceCleanup >= 1000000) {
-                    long totalCached = seenCache.cleanup(maxCacheSize.get());
+                    long totalCached = seenCache.cleanUp(maxCacheSize.get());
                     progress.printProgress(node, totalCached, processorQueue.size(), orderingQueue.size());
                     numNodesSinceCleanup = 0;
                 }

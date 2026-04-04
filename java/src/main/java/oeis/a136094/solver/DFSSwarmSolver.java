@@ -8,7 +8,6 @@ import static oeis.a136094.util.ParallelUtils.processInParallel;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.BlockingQueue;
@@ -36,7 +35,7 @@ public class DFSSwarmSolver extends DFSBatchSolver {
 
     @Override
     public void solve(Problem problem) {
-        solveProblems(Arrays.asList(problem), (_) -> {});
+        solveProblems(List.of(problem), (_) -> {});
     }
 
     public void solveProblems(List<Problem> problems, Consumer<Problem> resultConsumer) {
@@ -71,7 +70,7 @@ public class DFSSwarmSolver extends DFSBatchSolver {
         
         Bundle[] sortedBundles0 = Bundle.sortBundles(bundles0);
         Node node0 = new Node("", sortedBundles0, null);
-        levelTodo.add(new ArrayDeque<>(Arrays.asList(node0)));
+        levelTodo.add(new ArrayDeque<>(List.of(node0)));
 
         // start in DFS mode, then switch to DFSBatch mode
         return solveDFS(bestAnsLen, levelTodo, seenCache, progress);
@@ -80,7 +79,7 @@ public class DFSSwarmSolver extends DFSBatchSolver {
     private String solveDFS(int bestAnsLen, ArrayList<ArrayDeque<Node>> levelTodo, SeenCache seenCache,
             Progress progress) {
         long numNodesSinceModeCheck = 0;
-        long numNodesSinceCleanup = 0;
+        long numNodesSinceCleanUp = 0;
         
         NodeProcessor processor = new NodeProcessor(partials);
         
@@ -114,12 +113,12 @@ public class DFSSwarmSolver extends DFSBatchSolver {
                 numNodesSinceModeCheck = 0;
             }
 
-            numNodesSinceCleanup++;
-            if (numNodesSinceCleanup >= 10000000) {
+            numNodesSinceCleanUp++;
+            if (numNodesSinceCleanUp >= 10000000) {
                 long maxCacheSize = Main.DFS_BATCH_MAX_CACHE / numSolvers.get();
-                long totalCached = seenCache.cleanup(maxCacheSize);
+                long totalCached = seenCache.cleanUp(maxCacheSize);
                 progress.printProgress(node, totalCached, -1, -1);
-                numNodesSinceCleanup = 0;
+                numNodesSinceCleanUp = 0;
             }
             
             level++;

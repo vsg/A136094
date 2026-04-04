@@ -51,7 +51,7 @@ public class MoveBuilder {
         return bundles;
     }
 
-    public Bundle[] makeMovesNoCacheAndSort(Bundle[] bundles, String moves) {//XXX
+    public Bundle[] makeMovesAndSortWithoutCache(Bundle[] bundles, String moves) {
         for (int index = 0; index < moves.length(); index++) {
             int move = moves.charAt(index) - '1';
             bundles = makeMove(bundles, move);

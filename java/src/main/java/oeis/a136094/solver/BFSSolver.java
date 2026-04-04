@@ -5,7 +5,6 @@
 package oeis.a136094.solver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import oeis.a136094.Bundle;
@@ -54,7 +53,7 @@ public class BFSSolver extends Solver {
         Bundle[] sortedBundles0 = Bundle.sortBundles(bundles0);
         Node node0 = new Node("", sortedBundles0, null);
         
-        List<Node> nodes = Arrays.asList(node0);
+        List<Node> nodes = List.of(node0);
         for (int level = 0; level <= bestAnsLen; level++) {
             if (nodes.isEmpty()) break;
             progress.printProgress(level, nodes.size(), nodes.get(nodes.size()/2));
