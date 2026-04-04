@@ -32,7 +32,9 @@ CLASSPATH="lib/*:target/*"
 MAIN_CLASS="oeis.a136094.Main"
 ARGS=("$@")
 
-ARGS+=(--dfs-disk-seen-size=$SEEN_SIZE)
+if [[ ! "${ARGS[*]}" =~ --dfs-disk-seen-size ]]; then
+    ARGS+=(--dfs-disk-seen-size=$SEEN_SIZE)
+fi
 
 SOLVE_LOG="solve_$(date '+%Y%m%d_%H%M%S').log"
 
