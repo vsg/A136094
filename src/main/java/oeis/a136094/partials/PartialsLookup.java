@@ -249,20 +249,18 @@ public class PartialsLookup {
     private static void debugHbaNextMoves(int nextMoves, int bestAnsLen, int length, Bundle... bundles) {
         if (Main.DEBUG_NEXT_MOVES) {
             int heads = heads(bundles);
-            System.out.println("canHaveAnswer: " 
-                    + Bundle.bundlesToString(bundles) 
+            System.out.println("canHaveAnswer: " + Bundle.bundlesToString(bundles) 
                     + ", bestAnsLen = " + bestAnsLen + ", length = " + length 
-                    + ", nextMoves = " + nextMoves + " [" + digitsMaskToString(nextMoves) + "]" 
-                    + ", heads = " + heads + " [" + digitsMaskToString(heads) + "]"
-                    + " => nextMoves = " + (nextMoves & heads) + " [" + digitsMaskToString(nextMoves & heads) + "]");
+                    + ", nextMoves = [" + digitsMaskToString(nextMoves) + "]" 
+                    + ", heads = [" + digitsMaskToString(heads) + "]"
+                    + " => nextMoves = [" + digitsMaskToString(nextMoves & heads) + "]");
         }
     }
 
     private static void debugHbaResult(int nextMoves, int bestAnsLen, int length, Bundle... bundles) {
-        System.out.println("canHaveAnswer: " 
-                + Bundle.bundlesToString(bundles) 
+        System.out.println("canHaveAnswer: " + Bundle.bundlesToString(bundles) 
                 + ", bestAnsLen = " + bestAnsLen + ", length = " + length 
-                + ", nextMoves = " + nextMoves + " [" + digitsMaskToString(nextMoves) + "]");
+                + ", nextMoves = [" + digitsMaskToString(nextMoves) + "]");
     }
     
 }
