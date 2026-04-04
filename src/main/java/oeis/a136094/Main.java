@@ -6,6 +6,9 @@ package oeis.a136094;
 
 import static oeis.a136094.Bundle.parseBundles;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -50,6 +53,9 @@ public class Main {
 
     public static boolean DEBUG = false;
     public static boolean DEBUG_NEXT_MOVES = false;
+    
+    public static String PROFILES_PROPERTIES = "profiles.properties";
+    public static String USAGE_TXT = "usage.txt";
     
     public static int minPieceCheckSize() {
         if (MIN_PIECE_CHECK_SIZE >= 0) {
@@ -181,7 +187,7 @@ public class Main {
     private static void processArgs(String[] args) throws Exception {
         System.out.println();   
         
-        Properties profiles = Profiles.load();
+        Properties profiles = loadProfiles();
         List<String> arguments = new ArrayList<>(List.of(args));
         
         for (int index = 0; index < arguments.size(); index++) {
@@ -263,14 +269,35 @@ public class Main {
             } else if ("--solve".equals(key)) {
                 SOLVE_PROBLEM = arguments.get(++index);
                 System.out.println("SOLVE_PROBLEM: " + SOLVE_PROBLEM);
+            } else if ("--help".equals(key)) {
+                printHelp();
+                System.exit(0);
             } else {
                 throw new RuntimeException("Unknown argument: " + key);
             }
         }
     }
 
+    public static Properties loadProfiles() {
+        Properties props = new Properties();
+        try (InputStream in = new FileInputStream(PROFILES_PROPERTIES)) {
+            props.load(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return props;
+    }
+
     private static boolean parseBoolean(String value, boolean defaultValue) {
         return (value != null) ? "true".equals(value) : defaultValue;
+    }
+
+    private static void printHelp() {
+        try (InputStream in = new FileInputStream(USAGE_TXT)) {
+            in.transferTo(System.out);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void solveCustomProblem(String bundles, Partials partials) {

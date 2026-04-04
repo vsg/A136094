@@ -23,6 +23,8 @@
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>LICENSE</include>
+                <include>usage.txt</include>
+                <include>README.md</include>
                 <include>profiles.properties</include>
                 <include>solve.bat</include>
                 <include>solve.sh</include>
