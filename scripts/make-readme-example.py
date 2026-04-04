@@ -11,7 +11,7 @@ def make_example(n, solution):
         index = 0
         for digit in solution:
             if index < len(permutation) and digit == permutation[index]:
-                digit = f"**{digit}**"
+                digit = f"<ins>{digit}</ins>"
                 index += 1
             embedding.append(digit)
         print(f"| {" ".join(permutation)} | {" ".join(embedding)} |")
