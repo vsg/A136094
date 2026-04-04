@@ -309,6 +309,7 @@ public class PartialsInit {
                 if ((digits2 == digits1)) continue; 
                 
                 if (isDup(bundle1, bundle2)) continue;
+                if (isDup(bundle2, bundle1)) continue;
                 
                 if (numDigits3 == 0) {
                     callback.accept(new Bundle [] {bundle1, bundle2});
@@ -331,6 +332,8 @@ public class PartialsInit {
                     
                     if (isDup(bundle1, bundle3)) continue;
                     if (isDup(bundle2, bundle3)) continue;
+                    if (isDup(bundle3, bundle1)) continue;
+                    if (isDup(bundle3, bundle2)) continue;
                     
                     if (numDigits4 == 0) {
                         callback.accept(new Bundle[] {bundle1, bundle2, bundle3});
@@ -348,6 +351,9 @@ public class PartialsInit {
                         if (isDup(bundle1, bundle4)) continue;
                         if (isDup(bundle2, bundle4)) continue;
                         if (isDup(bundle3, bundle4)) continue;
+                        if (isDup(bundle4, bundle1)) continue;
+                        if (isDup(bundle4, bundle2)) continue;
+                        if (isDup(bundle4, bundle3)) continue;
 
                         if (numDigits5 == 0) {
                             callback.accept(new Bundle[] {bundle1, bundle2, bundle3, bundle4});
@@ -366,6 +372,10 @@ public class PartialsInit {
                             if (isDup(bundle2, bundle5)) continue;
                             if (isDup(bundle3, bundle5)) continue;
                             if (isDup(bundle4, bundle5)) continue;
+                            if (isDup(bundle5, bundle1)) continue;
+                            if (isDup(bundle5, bundle2)) continue;
+                            if (isDup(bundle5, bundle3)) continue;
+                            if (isDup(bundle5, bundle4)) continue;
 
                             callback.accept(new Bundle[] {bundle1, bundle2, bundle3, bundle4, bundle5});
                         }
