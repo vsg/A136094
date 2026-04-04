@@ -113,7 +113,7 @@ public class DFSBatchSolver extends Solver {
                     
                     nextBatchNodes.add(nextNode);
                     
-                    if (nextBatchNodes.size() == Main.DFS_BATCH_SIZE) {
+                    if (nextBatchNodes.size() == Main.NODE_BATCH_SIZE) {
                         Batch nextBatch = new Batch(bestAnsLen, nextBatchNodes);
                         processorQueue.add(nextBatch);
                         orderingQueue.add(nextBatch);

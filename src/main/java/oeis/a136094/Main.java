@@ -28,7 +28,7 @@ public class Main {
     
     public static String SOLVE_PROBLEM = null;
     
-    public static int DFS_BATCH_SIZE = 10000;
+    public static int NODE_BATCH_SIZE = 10000;
     public static long DFS_BATCH_MAX_CACHE = 250_000_000L;
     public static int DFS_SWARM_MAX_GROUPS = 2;
     public static boolean DFS_SWARM_BATCH_MODE = false;
@@ -215,9 +215,9 @@ public class Main {
             } else if ("--dfs-batch-max-cache".equals(key)) {
                 DFS_BATCH_MAX_CACHE = Long.parseLong(value);
                 System.out.println("DFS_BATCH_MAX_CACHE: " + DFS_BATCH_MAX_CACHE);
-            } else if ("--dfs-batch-size".equals(key)) {
-                DFS_BATCH_SIZE = Integer.parseInt(value);
-                System.out.println("DFS_BATCH_SIZE: " + DFS_BATCH_SIZE);
+            } else if ("--node-batch-size".equals(key)) {
+                NODE_BATCH_SIZE = Integer.parseInt(value);
+                System.out.println("NODE_BATCH_SIZE: " + NODE_BATCH_SIZE);
             } else if ("--dfs-disk-block-size".equals(key)) {
                 DFS_DISK_BLOCK_SIZE = Integer.parseInt(value);
                 System.out.println("DFS_DISK_BLOCK_SIZE: " + DFS_DISK_BLOCK_SIZE);

@@ -77,7 +77,7 @@ public class BFSBatchSolver extends Solver {
             if (nodes.isEmpty()) break;
             progress.printProgress(level, nodes.size(), nodes.get(nodes.size()/2));
 
-            List<Batch> batches = makeBatches(bestAnsLen, nodes);
+            List<Batch> batches = makeBatches(bestAnsLen, nodes, Main.NODE_BATCH_SIZE);
             
             processorQueue.addAll(batches);
             
@@ -108,9 +108,9 @@ public class BFSBatchSolver extends Solver {
         return null;
     }
 
-    private List<Batch> makeBatches(int bestAnsLen, List<Node> nodes) {
+    private List<Batch> makeBatches(int bestAnsLen, List<Node> nodes, int batchSize) {
         List<Batch> batches = new ArrayList<>();
-        processInBatches(nodes, 10000, (ArrayList<Node> batchNodes) -> {
+        processInBatches(nodes, batchSize, (ArrayList<Node> batchNodes) -> {
             batches.add(new Batch(bestAnsLen, batchNodes));
         });
         return batches;
