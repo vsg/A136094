@@ -1,4 +1,4 @@
-﻿OEIS A136094 Solver. Finds lexicographically minimal complete sequences (supersequences of all permutations).
+﻿Solver for OEIS A136094 sequence. Finds smallest numbers containing all permutations of digits {1,...,n} as subsequences.
 
 Usage: solve [profile] [options]
 
