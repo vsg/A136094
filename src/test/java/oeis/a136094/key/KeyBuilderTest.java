@@ -143,7 +143,7 @@ class KeyBuilderTest {
             int digits1 = (1 << numDigits1) - 1;
             for (int numHeads1 = 1; numHeads1 <= numDigits1; numHeads1++) {
                 int heads1 = (1 << numHeads1) - 1;
-                Bundle bundle1 = Bundle.unpack((heads1 << 9) | digits1);
+                Bundle bundle1 = Bundle.of(heads1, digits1);
                 
                 for (Bundle bundle2 : Bundle.ALL_BUNDLES) {
                     result.add(new Bundle[] {bundle1, bundle2});

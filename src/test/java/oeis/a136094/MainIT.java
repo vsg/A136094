@@ -122,14 +122,13 @@ class MainIT {
     
     private static String solveProblem(int n, String alg) {
         Partials partials = PartialsInit.precalc(n);
-        
         return solveProblem(n, alg, partials);
     }
 
     private static String solveProblem(int n, String alg, Partials partials) {
         Solver solver = Solver.createSolver(alg, partials);
         int digits = (1 << n) - 1;
-        Problem problem = new Problem(Bundle.unpack((digits << 9) | digits));
+        Problem problem = new Problem(Bundle.of(digits, digits));
         solver.solve(problem);
         return problem.getAnswer();
     }
