@@ -42,12 +42,12 @@ Values for n ≤ 6 were previously known. The values for n = 7, 8, and 9 were fi
 
 The program builds candidate sequences digit by digit, exploring a tree where each path from root to leaf represents a potential complete sequence. 
 At each node, it tracks the set of permutation suffixes, called obligations, that subsequent digits still need to cover. 
-When a digit is placed, any obligation starting with that digit has its first element consumed. A sequence is complete when no obligations remain.
+When the next digit is placed into a sequence, any obligation item starting with that digit has its first element consumed. A sequence is complete when no obligations remain.
 
-The program first tries to find a solution of length 1, searching the entire tree. If none exists, it tries length 2, then length 3, and so on, until a valid supersequence is found.
+The program first tries to find a solution of length 1, searching the entire tree. If none exists, it tries length 2, then length 3, and so on, until a valid solution is found.
 Since the target length is fixed at each attempt, any branch that cannot satisfy its obligations in the remaining number of digits is pruned.
 The program pre-computes many smaller possible subsets of obligations and the minimum number of digits needed to satisfy them. 
-At each node, if any known subset is found within the current obligations and cannot be satisfied in the remaining positions of the sequence, the branch is pruned.
+At each node, if any known subset is found within the current obligations and cannot be satisfied, the branch is pruned.
 
 Additionally, many branches are equivalent under relabeling of digits. 
 If two nodes have obligation sets that can be made identical by renaming digits, they would produce equivalent subtrees, so only the one with the lexicographically smaller path needs to be explored.
@@ -111,7 +111,7 @@ After consuming the first element, the resulting obligation may now be a subset 
 If it is a subset, then it can be dropped, since satisfying the larger one would automatically satisfy the smaller.
 
 In the first step, placing digit 1: only `1(234)` starts with 1, so it is consumed and becomes `(234) = 2(34) 3(24) 4(23)`. 
-But `2(34)` is already contained in `2(134)`, `3(24)` is contained in `3(124)`, and `4(23)` in `4(123)`. 
+But `2(34)` is already contained in `2(134)`, and `3(24)` is contained in `3(124)`, and `4(23)` is contained in `4(123)`. 
 After dropping these, the remaining obligations simplify to: `2(134) 3(124) 4(123)`.
 
     placing 1:
@@ -139,7 +139,7 @@ A set of obligation items can be stored as an array of such numbers.
 
 #### Grouped Notation
 
-As n grows, the number of individual obligation items can reach hundreds. 
+As n grows, the number of individual obligation items in one node can reach hundreds. 
 Searching for known subproblems within the obligations (described in "Subproblem Pruning" below) requires nested loops of depth 2-5, which becomes prohibitively expensive with this many items. 
 A representation that groups individual items sharing the same set of digits into a single item reduces the number of elements to iterate over, making these operations much less expensive.
 
@@ -183,11 +183,10 @@ When placing a digit, each obligation item with that digit as head has its head 
         =  234/1234                                      # 2/234 3/234 4/234 dropped as subsets
 
 Placing digit 1 splits `1234/1234` into two items: `234/234`, the result of consuming head 1, and `234/1234`, the remaining heads unchanged.
-
 To see why, consider that `1234/1234` in basic notation is `1(234) 2(134) 3(124) 4(123)`. Placing digit 1 consumes `1(234)`, producing `(234)` = `234/234`. 
 The remaining obligations `2(134) 3(124) 4(123)` = `234/1234` are unaffected.
 
-The item `234/234` can be simplified: for each of its heads (2, 3, 4), the corresponding obligation uses a subset of the digits in `234/1234`, which has the same heads and more digits. 
+The item `234/234` can be simplified: for each of its heads (2, 3, 4) also appears as a head in `234/1234`, which has the same heads but more digits. 
 Since every element of `234/234` is contained in the corresponding element of `234/1234`, the entire item can be dropped, leaving only `234/1234`.
 
 In the second step:
@@ -200,7 +199,8 @@ In the second step:
 
 Placing digit 2 splits `234/1234` into two items: `134/134`, the result of consuming head 2, and `34/1234`, the remaining heads unchanged.
 
-The item `134/134` can be simplified: heads 3 and 4 also appear as heads in `34/1234`, which has more digits. Since `3/134` is contained in `3/1234` and `4/134` in `4/1234`, these can be dropped. 
+The item `134/134` can be simplified: heads 3 and 4 also appear as heads in `34/1234`, which has more digits. 
+Since `3/134` is contained in `3/1234` and `4/134` is contained in `4/1234`, these can be dropped. 
 Only head 1 has no corresponding head in `34/1234`, so `134/134` reduces to `1/134`.
 
 In grouped notation, one item is contained in another if:
@@ -305,11 +305,13 @@ for item1 in obligations:
                     if lookup5[k1][k2][m3][m4][m5] > remaining_digits: prune
 ```
 
+#### Trie-Based Normalization
+
 An earlier version of the program used a trie-like approach to normalize subsets of 1 to 5 obligation items in a generic way. 
 For n = 9, there are 19,171 different possible obligation items in grouped notation.
 
 Without accounting for symmetry, the trie size would grow as a power of that number. 
-The first level of the trie would have up to 19,171 nodes, one for each possible first item. 
+The first level of the trie would have 19,171 nodes, one for each possible first item. 
 The second level would branch from each of those, requiring 367 million nodes just to store all pairs of items.
 
 | Items | All combinations | Unique up to relabeling |
@@ -326,19 +328,61 @@ While walking the trie during lookup, the iterator would carry not only a refere
 This combined relabeling describes how the digits in the original obligation items should be renamed to match the subset represented by the current node. 
 Multiple parent nodes can point to the same child node but with different transition relabelings, so the trie effectively becomes a directed acyclic graph (DAG).
 
-TODO k1, k2
+The current version of the program only needs to normalize one or two items, which can be done more simply and efficiently than with a trie or DAG.
 
-### Symmetry Normalization
+#### Normalizing One Item
 
-While exploring the tree of candidates, the program detects when two nodes have obligations that differ only by a relabeling of digits. 
-Such nodes are duplicates and will produce solutions of the same length - only the one with the lexicographically smaller path needs to be explored.
+Consider the item `34/3456`. Other items with the same structure include `25/1257`, `89/3689`, and `67/4567`.
 
-One way to detect such duplicates is to define a normalization function that maps any set of obligations to a canonical form - the same output regardless of how the digits are relabeled. 
-This canonical form serves as a key: while exploring the tree, if a previously seen key is encountered, the duplicate node can be discarded.
+The normalization splits the 9 digits into three groups based on their role in the item: heads, tails (digits that are not heads), and other digits (not present in the item).
 
-The straightforward way to normalize is to try all n! relabelings of digits. 
-For each relabeling, sort the items within each obligation, then sort the obligations themselves, and select the lexicographically smallest such representation as the canonical form. 
-Two obligation sets with the same canonical form are duplicates, so one can be discarded. 
+    34/3456:  heads=[3,4]  tails=[5,6]  other=[1,2,7,8,9]
+
+Digits are then relabeled into numbers 1, 2, 3, ..., in the following order: heads first, then tails, then other, each numbered starting from where the previous group left off:
+
+    3->1, 4->2, 5->3, 6->4, 1->5, 2->6, 7->7, 8->8, 9->9
+
+    34/3456 => 12/1234
+
+Using this approach, any structurally equivalent item would normalize to the same result `12/1234`.
+
+#### Normalizing a Pair of Items
+
+Consider the pair `467/467 34/3456`. Other pairs with the same structure include `279/279 25/1257` and `358/358 89/3689`.
+
+With one item, the digits were split into 3 groups. 
+With two items, each of those 3 groups is further split into 3 subgroups based on the digit's role in the second item, giving 9 subgroups in total. 
+First, let's classify digits by their role in each item:
+
+    467/467:   h1=[4,6,7]      t1=[]     o1=[1,2,3,5,8,9]
+    34/3456:   h2=[3,4]        t2=[5,6]  o2=[1,2,7,8,9]
+
+Then intersect the groups from both items to form the 9 subgroups:
+
+    h1 & h2 = [4]         h1 & t2 = [6]         h1 & o2 = [7]
+    t1 & h2 = []          t1 & t2 = []          t1 & o2 = []
+    o1 & h2 = [3]         o1 & t2 = [5]         o1 & o2 = [1,2,8,9]
+
+Digits are relabeled in subgroup order:
+
+    4->1, 6->2, 7->3, 3->4, 5->5, 1->6, 2->7, 8->8, 9->9
+
+    467/467  34/3456
+    => 123/123  41/4152    # digits relabeled
+    => 123/123  14/1245    # digits sorted
+
+Using this approach, any structurally equivalent item would normalize to the same result `123/123 14/1245`.
+
+### Symmetry Pruning
+
+While exploring the tree of candidates, the program detects when two nodes have obligation sets that differ only by a relabeling of digits. 
+Such nodes will produce solutions of the same length, so only the one with the lexicographically smaller path needs to be explored.
+To detect duplicates, the program normalizes each obligation set to a canonical form that serves as a key. 
+If a previously seen key is encountered, the duplicate node can be discarded.
+
+The straightforward way to normalize is to try all n! relabelings. 
+For each relabeling, apply it to every obligation item, sort the items within each obligation, then sort the obligations themselves. 
+The relabeling that produces the lexicographically smallest result is selected as the canonical form.
 However, for n = 9 this means inspecting up to 9! = 362,880 relabelings per node, which is far too expensive.
 
 Instead of treating all n digits as potentially interchangeable, the program partitions digits into equivalence groups based on the structure of the obligations. 
@@ -375,7 +419,26 @@ Instead, the program computes a hash of the counts for each digit, sorts digits 
 This occasionally produces false positives - digits that hash the same but are not truly equivalent. 
 This slightly increases the number of relabelings to consider, but does not affect correctness.
 
-#### Structural Hashing Example
+```
+# Compute structural hash for each digit
+for each digit d in {1, ..., n}:
+    count_as_digit = 0, count_as_head = 0, digits_set = {}, heads_set = {}
+    for each item in obligations sorted by size:
+        count_as_digit += (d appears as a digit in item)
+        count_as_head  += (d appears as a head in item)
+        digits_set     |= digits of item, if d is in digits
+        heads_set      |= heads of item, if d is a head
+        if next item has different size or this item is last:
+            update hash[d] with 
+                count_as_digit, count_as_head, size(digits_set), size(heads_set)
+            count_as_digit = 0, count_as_head = 0, digits_set = {}, heads_set = {}
+
+# Group digits by hash
+sort digits by hash value
+groups = consecutive runs of digits with the same hash
+```
+
+#### Normalization Example
 
 The program computes structural counts separately for obligation items of each size. Consider a node with n = 4 and the following obligations:
 
@@ -412,13 +475,21 @@ Counting structural roles for each digit in items of size 2 heads / 2 digits:
 The resulting counts and their hashes for each digit, across items of each size:
 
     Digit 1: [[2, 4, 0, 0], [2, 3, 2, 3]], hash = -1554236668
-    Digit 2: [[2, 4, 2, 3], [0, 0, 0, 0]], hash = -1494270333
-    Digit 3: [[1, 3, 1, 2], [1, 2, 1, 2]], hash = 140862021
-    Digit 4: [[1, 3, 1, 2], [1, 2, 1, 2]], hash = 140862021
+    Digit 2: [[2, 4, 2, 3], [0, 0, 0, 0]], hash = 140862021
+    Digit 3: [[1, 3, 1, 2], [1, 2, 1, 2]], hash = -1494270333
+    Digit 4: [[1, 3, 1, 2], [1, 2, 1, 2]], hash = -1494270333
 
 Digits 3 and 4 have identical hashes, so they belong to the same equivalence group. 
-After sorting by hash, the groups are `{1}, {2}, {3, 4}` with sizes `[1, 1, 2]`. 
+After sorting by hash, the groups are `{1}, {3, 4}, {2}` with sizes `[1, 2, 1]`. 
 The number of relabelings to consider is `1 * 1 * 2! = 2`, instead of `4! = 24`.
+
+The program tries both relabelings (swapping 3 and 4 or not) and finds that the relabeling 1->1, 3->2, 4->3, 2->4 produces the lexicographically smallest result: `12/12 13/13 24/124 34/134`. 
+This becomes the canonical form for this obligation set.
+
+    original:       23/123  24/124  13/13  14/14
+    relabel:        1->1  3->2  4->3  2->4
+    after relabel:  42/142  43/143  12/12  13/13
+    sorted:         12/12  13/13  24/124  34/134
 
 ## Usage
 
