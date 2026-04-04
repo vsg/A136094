@@ -197,7 +197,7 @@ public class Main {
                 arguments.removeFirst();
                 arguments.addAll(0, List.of(profileArgs.trim().split("\\s+")));
                 index = -1; // start from the beginning
-            } else if ("--threads".equals(key)) {
+            } else if ("--thread-count".equals(key)) {
                 NUM_WORKER_THREADS = Integer.parseInt(value);
                 System.out.println("NUM_WORKER_THREADS: " + NUM_WORKER_THREADS);
             } else if ("--n".equals(key)) {
