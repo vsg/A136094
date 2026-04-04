@@ -181,10 +181,7 @@ public class Partials implements Serializable {
         int bundleIndex33 = bundle33.index();
         if (solutionLength3[shape1] == null
                 || solutionLength3[shape1][bundleIndex22] == null) return 0;
-        byte[][] a = solutionLength3[shape1];
-        byte[] b = a[bundleIndex22];
-        byte c = b[bundleIndex33];
-        return c;
+        return solutionLength3[shape1][bundleIndex22][bundleIndex33];
     }
 
     public int getSolutionLength4(int k2, Bundle bundle33, Bundle bundle44) {
