@@ -106,7 +106,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <finalName>${project.artifactId}</finalName>
                     <descriptors>
                         <descriptor>src/assembly/assembly.xml</descriptor>
                     </descriptors>
