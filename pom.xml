@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>com.github.vsg</groupId>
-    <artifactId>oeis-A136094</artifactId>
+    <artifactId>A136094</artifactId>
     <version>1.0.0</version>
 
     <properties>
