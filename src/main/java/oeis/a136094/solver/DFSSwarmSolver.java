@@ -35,7 +35,7 @@ public class DFSSwarmSolver extends DFSBatchSolver {
 
     @Override
     public void solve(Problem problem) {
-        solveProblems(List.of(problem), (_) -> {});
+        solveProblems(List.of(problem), (p) -> {});
     }
 
     public void solveProblems(List<Problem> problems, Consumer<Problem> resultConsumer) {

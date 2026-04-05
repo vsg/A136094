@@ -496,6 +496,8 @@ This becomes the canonical form for this obligation set.
 
 ## Usage
 
+Requires Java 17 or later.
+
 Build:
 ```
 mvnw clean package -DexcludedGroups=slow

@@ -242,8 +242,8 @@ public class DFSDiskSolver extends Solver {
         return -1;
     }
 
-    private File findMinPrefixesFile(File dir) {
-        return Optional.ofNullable(dir.listFiles((_, name) -> name.endsWith(".txt.gz")))
+    private File findMinPrefixesFile(File directory) {
+        return Optional.ofNullable(directory.listFiles((dir, name) -> name.endsWith(".txt.gz")))
                 .flatMap(files -> Arrays.stream(files).sorted().findFirst())
                 .orElse(null);
     }

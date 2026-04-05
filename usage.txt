@@ -1,6 +1,6 @@
 ﻿Solver for OEIS A136094 sequence. Finds smallest numbers containing all permutations of digits {1,...,n} as subsequences.
 
-Usage: solve [profile] [options]
+Usage: solve [<profile>] [options]
 
 Profiles:
 
