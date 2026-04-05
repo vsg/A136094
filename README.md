@@ -307,9 +307,9 @@ for item1 in obligations:
 
 #### Trie-Based Normalization
 
-An earlier version of the program used a trie-like approach to normalize subsets of 1 to 5 obligation items in a generic way. 
-For n = 9, there are 19,171 different possible obligation items in grouped notation.
+An earlier version of the program used a trie-like structure instead of multi-index arrays to store and look up solution lengths for combinations of 1 to 5 obligation items.
 
+For n = 9, there are 19,171 different possible obligation items in grouped notation.
 Without accounting for symmetry, the trie size would grow as a power of that number. 
 The first level of the trie would have 19,171 nodes, one for each possible first item. 
 The second level would branch from each of those, requiring 367 million nodes just to store all pairs of items.
@@ -324,9 +324,12 @@ The second level would branch from each of those, requiring 367 million nodes ju
 
 Taking relabeling symmetry into account reduces the number of nodes, since items that differ only by a relabeling can share the same subtree. 
 However, each branch of the trie must also store a normalizing relabeling - a mapping that describes how digits should be renamed when following that branch. 
-While walking the trie during lookup, the iterator would carry not only a reference to the current node, but also the combined relabeling accumulated from all previous steps. 
+While walking the trie during lookup, the iterator would carry not only a reference to the current combination node, but also the combined relabeling accumulated from all previous steps. 
 This combined relabeling describes how the digits in the original obligation items should be renamed to match the subset represented by the current node. 
 Multiple parent nodes can point to the same child node but with different transition relabelings, so the trie effectively becomes a directed acyclic graph (DAG).
+For example, the root of the trie would have 19,171 branches, but they would point to only 45 distinct nodes, each reached through a different relabeling. 
+Each of those 45 nodes would in turn have 19,171 branches each pointing to only one of 6,800 distinct nodes, each such node representing a different normalized pair of items, and so on for deeper levels.
+Each relabeling can be stored efficiently as a 32-bit integer: 8 digits encoded as 4-bit fields, with the 9th digit computed by subtracting the sum of the other 8 from the known total 1+2+...+9 = 45.
 
 The current version of the program only needs to normalize one or two items, which can be done more simply and efficiently than with a trie or DAG.
 
