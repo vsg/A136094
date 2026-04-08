@@ -496,16 +496,16 @@ This becomes the canonical form for this obligation set.
 
 ## Usage
 
-Requires Java 17 or later.
+Requires Java 21 or later.
 
 Build:
 ```
-mvnw clean package -DexcludedGroups=slow
+mvnw package -DexcludedGroups=slow
 ```
 
 Build and run all tests (including slower ones):
 ```
-mvnw clean verify
+mvnw verify
 ```
 
 Run:
