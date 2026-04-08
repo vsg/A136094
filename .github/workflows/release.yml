@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 'Release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Prepare versions
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
+          NEXT=$(echo "$VERSION" | awk -F. '{print $1"."$2"."$3+1}')
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "NEXT_DEV_VERSION=${NEXT}-SNAPSHOT" >> $GITHUB_ENV
+
+      - name: Set release version
+        run: mvn versions:set -DnewVersion=${{ env.RELEASE_VERSION }} -B -ntp
+
+      - name: Build and verify
+        run: mvn verify -B -ntp
+
+      - name: Commit and tag release
+        run: |
+          git add pom.xml
+          git commit -m "Release ${{ env.RELEASE_VERSION }}"
+          git tag -a "v${{ env.RELEASE_VERSION }}" -m "Release ${{ env.RELEASE_VERSION }}"
+          git push && git push --tags
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ env.RELEASE_VERSION }}" \
+            --title "${{ env.RELEASE_VERSION }}" \
+            --notes "" \
+            target/*-dist.zip
+
+      - name: Set next SNAPSHOT version
+        run: mvn versions:set -DnewVersion=${{ env.NEXT_DEV_VERSION }} -B -ntp
+
+      - name: Commit next version
+        run: |
+          git add pom.xml
+          git commit -m "Next development version (${{ env.NEXT_DEV_VERSION }})"
+          git push
