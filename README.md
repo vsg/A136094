@@ -4,7 +4,7 @@ Computes values of OEIS sequence [A136094](https://oeis.org/A136094), where a(n)
 
 ## The Problem
 
-Given n symbols, a complete sequence over {1, …, n} is a sequence that contains every one of the n! permutations as a subsequence (not necessarily contiguous).
+Given n symbols, a complete sequence over {1, ..., n} is a sequence that contains every one of the n! permutations as a subsequence (not necessarily contiguous).
 Among all shortest complete sequences, a(n) is the lexicographically smallest, interpreted as a decimal number.
 
 The related sequence [A062714](https://oeis.org/A062714) gives the length of the shortest complete sequence for each n.
@@ -530,23 +530,23 @@ Approximate running times and resource requirements:
 
 ## See Also
 
-- V. Chvátal, D. A. Klarner, D. E. Knuth, *Selected Combinatorial Research Problems*, Stanford CS-TR-72-292, 1972. [Stanford TR](http://i.stanford.edu/TR/CS-TR-72-292.html)
-- M. Newey, *Notes on a Problem Involving Permutations as Subsequences*, Stanford CS-TR-73-340, 1973. [Stanford TR](http://i.stanford.edu/TR/CS-TR-73-340.html) | [SDR](https://purl.stanford.edu/br155cb4219)
-- L. Adleman, *Short Permutation Strings*, Discrete Mathematics 10(2), 1974. [DOI](https://doi.org/10.1016/0012-365X(74)90116-2)
-- P. J. Koutas, T. C. Hu, *Shortest String Containing All Permutations*, Discrete Mathematics 11(2), 1975. [DOI](https://doi.org/10.1016/0012-365X(75)90004-7)
-- D. J. Kleitman, D. J. Kwiatkowski, *A Lower Bound on the Length of a Sequence Containing All Permutations as Subsequences*, J. Combin. Theory Ser. A 21(2), 1976. [DOI](https://doi.org/10.1016/0097-3165(76)90057-1)
-- G. Galbiati, F. P. Preparata, *On Permutation-Embedding Sequences*, SIAM Journal on Applied Mathematics 30(3), 1976. [DOI](https://doi.org/10.1137/0130040)
-- S. P. Mohanty, *Shortest String Containing All Permutations*, Discrete Mathematics 31(1), 1980. [DOI](https://doi.org/10.1016/0012-365X(80)90177-6)
-- M.-C. Cai, *A New Bound on the Length of the Shortest String Containing All r-Permutations*, Discrete Mathematics 38(2–3), 1982. [DOI](https://doi.org/10.1016/0012-365X(82)90155-8)
-- C. Savage, *Short Strings Containing All k-Element Permutations*, Discrete Mathematics 42(2–3), 1982. [DOI](https://doi.org/10.1016/0012-365X(82)90224-2)
-- A. A. Schäffer, *Shortest Prefix Strings Containing All Subset Permutations*, Discrete Mathematics 65(3), 1987. [DOI](https://doi.org/10.1016/0012-365X(87)90193-2)
-- R. Erra, N. Lygeros, N. Stewart, *On Minimal Strings Containing the Elements of Sn by Decimation*, DMTCS, 2001. [DOI](https://doi.org/10.46298/dmtcs.2289)
-- N. Stewart, *An Image-Space Algorithm for Hardware-Based Rendering of Constructive Solid Geometry*, PhD Thesis, Chapter 5, 2008. [Semantic Scholar](https://www.semanticscholar.org/paper/An-image-space-algorithm-for-hardware-based-of-Stewart/d54a88c4606b94a4494838092587ad88cdbeb160) | [GitHub](https://github.com/nigels-com/nnr)
-- E. Zalinescu, *Shorter Strings Containing All k-Element Permutations*, Information Processing Letters 111(12), 2011. [DOI](https://doi.org/10.1016/j.ipl.2011.03.018)
-- S. Radomirovic, *A Construction of Short Sequences Containing All Permutations of a Set as Subsequences*, Electronic J. Combinatorics 19(4), 2012. [DOI](https://doi.org/10.37236/2859)
+- V. Chvátal, D. A. Klarner, D. E. Knuth, *Selected Combinatorial Research Problems*, 1972. [Stanford TR](http://i.stanford.edu/TR/CS-TR-72-292.html)
+- M. Newey, *Notes on a Problem Involving Permutations as Subsequences*, 1973. [Stanford TR](http://i.stanford.edu/TR/CS-TR-73-340.html) | [SDR](https://purl.stanford.edu/br155cb4219)
+- L. Adleman, *Short Permutation Strings*, 1974. [DOI](https://doi.org/10.1016/0012-365X(74)90116-2)
+- P. J. Koutas, T. C. Hu, *Shortest String Containing All Permutations*, 1975. [DOI](https://doi.org/10.1016/0012-365X(75)90004-7)
+- D. J. Kleitman, D. J. Kwiatkowski, *A Lower Bound on the Length of a Sequence Containing All Permutations as Subsequences*, 1976. [DOI](https://doi.org/10.1016/0097-3165(76)90057-1)
+- G. Galbiati, F. P. Preparata, *On Permutation-Embedding Sequences*, 1976. [DOI](https://doi.org/10.1137/0130040)
+- S. P. Mohanty, *Shortest String Containing All Permutations*, 1980. [DOI](https://doi.org/10.1016/0012-365X(80)90177-6)
+- M.-C. Cai, *A New Bound on the Length of the Shortest String Containing All r-Permutations*, 1982. [DOI](https://doi.org/10.1016/0012-365X(82)90155-8)
+- C. Savage, *Short Strings Containing All k-Element Permutations*, 1982. [DOI](https://doi.org/10.1016/0012-365X(82)90224-2)
+- A. A. Schäffer, *Shortest Prefix Strings Containing All Subset Permutations*, 1987. [DOI](https://doi.org/10.1016/0012-365X(87)90193-2)
+- R. Erra, N. Lygeros, N. Stewart, *On Minimal Strings Containing the Elements of Sn by Decimation*, 2001. [DOI](https://doi.org/10.46298/dmtcs.2289)
+- N. Stewart, *An Image-Space Algorithm for Hardware-Based Rendering of Constructive Solid Geometry* (Chapter 5), 2008. [Semantic Scholar](https://www.semanticscholar.org/paper/An-image-space-algorithm-for-hardware-based-of-Stewart/d54a88c4606b94a4494838092587ad88cdbeb160) | [GitHub](https://github.com/nigels-com/nnr)
+- E. Zalinescu, *Shorter Strings Containing All k-Element Permutations*, 2011. [DOI](https://doi.org/10.1016/j.ipl.2011.03.018)
+- S. Radomirovic, *A Construction of Short Sequences Containing All Permutations of a Set as Subsequences*, 2012. [DOI](https://doi.org/10.37236/2859)
 - P. Uznański, *All Permutations Supersequence is coNP-complete*, 2015. [arXiv](https://doi.org/10.48550/arXiv.1506.05079)
-- M. Engen, V. Vatter, *Containing All Permutations*, Amer. Math. Monthly 128(1), 2021. [arXiv](https://doi.org/10.48550/arXiv.1810.08252)
-- O. Tan, *Skip Letters for Short Supersequence of All Permutations*, Discrete Mathematics 345(12), 2022. [arXiv](https://doi.org/10.48550/arXiv.2201.06306)
+- M. Engen, V. Vatter, *Containing All Permutations*, 2021. [arXiv](https://doi.org/10.48550/arXiv.1810.08252)
+- O. Tan, *Skip Letters for Short Supersequence of All Permutations*, 2022. [arXiv](https://doi.org/10.48550/arXiv.2201.06306)
 
 ## License
 
