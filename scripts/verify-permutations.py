@@ -2,7 +2,7 @@ from itertools import permutations
 
 def test(sequence):
   for p in permutations(set(sequence)):
-    s = ''.join(p)
+    s = "".join(p)
     k = -1
     for c in s:
       k = sequence.find(c, k+1)

@@ -33,9 +33,9 @@ def parse_problem(problem):
 
 def state_str(state):
     if GROUPED:
-        return ' '.join(f"{''.join(sorted(heads))}/{''.join(sorted(digits))}" for heads, digits in group_state(state))
+        return " ".join(f"{"".join(sorted(heads))}/{"".join(sorted(digits))}" for heads, digits in group_state(state))
     else:
-        return ' '.join(f"{head}({''.join(sorted(tail))})" for head, tail in state)
+        return " ".join(f"{head}({"".join(sorted(tail))})" for head, tail in state)
 
 def group_state(state):
     grouped = defaultdict(set)
@@ -46,7 +46,7 @@ def group_state(state):
     return [(set(heads), set(digits)) for digits, heads in grouped.items()]
 
 def print_state(prefix, prefix_max_length, state):
-    print(f"{''.join(prefix):>{prefix_max_length}} : {state_str(state)}")
+    print(f"{"".join(prefix):>{prefix_max_length}} : {state_str(state)}")
 
 def verify_solution(problem, solution):
     """Verify that the provided solution solves the problem. Does not verify that the provided solution is minimal."""
