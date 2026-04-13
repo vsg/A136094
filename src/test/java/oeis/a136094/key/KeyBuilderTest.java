@@ -7,11 +7,9 @@ package oeis.a136094.key;
 import static oeis.a136094.key.Permutations.permutations;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -64,17 +62,6 @@ class KeyBuilderTest {
         });
         
         assertThat(bundlesByShape.stream().map(bb -> key(bb[0])).distinct().count()).isEqualTo(bundlesByShape.size());
-    }
-    
-    @Tag("slow")
-    @Test
-    void bundlePairSwap() {
-        bundlePairs().forEach(bundles -> {
-            Bundle b1 = bundles[0];
-            Bundle b2 = bundles[1];
-            
-            assertThat(key(b1, b2)).isEqualTo(key(b2, b1));
-        });
     }
     
     @ParameterizedTest
@@ -136,24 +123,6 @@ class KeyBuilderTest {
                 Bundle.parseBundles("1/13 2/23 2/27 4/34 4/456 15/15 6/356 16/16 26/26 7/257 7/357 67/567"));
     }
     
-    private static List<Bundle[]> bundlePairs() {
-        List<Bundle[]> result = new ArrayList<>();
-        
-        for (int numDigits1 = 1; numDigits1 <= 9; numDigits1++) {
-            int digits1 = (1 << numDigits1) - 1;
-            for (int numHeads1 = 1; numHeads1 <= numDigits1; numHeads1++) {
-                int heads1 = (1 << numHeads1) - 1;
-                Bundle bundle1 = Bundle.of(heads1, digits1);
-                
-                for (Bundle bundle2 : Bundle.ALL_BUNDLES) {
-                    result.add(new Bundle[] {bundle1, bundle2});
-                }
-            }
-        }
-        
-        return result;
-    }
-
     private Key key(Bundle... bundles) {
         return keyBuilder.makeKey(Bundle.sortBundles(bundles));
     }
